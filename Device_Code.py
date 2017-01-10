@@ -1,4 +1,4 @@
-from RGB_LCD import *
+from grove_rgb_lcd import *
 import time
 
 
