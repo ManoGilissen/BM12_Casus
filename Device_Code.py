@@ -1,4 +1,5 @@
 from RGB_LCD import *
+import time
 
 
 STATE_INACTIVE                      = 0

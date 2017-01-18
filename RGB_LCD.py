@@ -88,15 +88,15 @@ def setText(text):
             if c == 'n':
                 continue
         count += 1
-        bus.write_byte_data(DISPLAY_TEXT_ADDR,0x40,ord(c))
+        bus.write_byte_data(DISPLAY_TEXT_ADDR, 0x40, ord(c))
 
-#Update the display without erasing the display
+# Update the display without erasing the display
 def setText_norefresh(text):
-    textCommand(0x02) # return home
+    textCommand(0x02)  # return home
     time.sleep(.05)
-	
-    textCommand(0x08,0x04) # display on, no cursor
-    textCommand(0x28) # 2 lines
+
+    textCommand(0x08, 0x04)  # display on, no cursor
+    textCommand(0x28)  # 2 lines
     time.sleep(.05)
     count = 0
     row = 0
@@ -111,7 +111,7 @@ def setText_norefresh(text):
                 continue
         count += 1
         bus.write_byte_data(DISPLAY_TEXT_ADDR, 0x40, ord(c))
-		
+
 # example code
 if __name__==__main__:
     setText("Hello worldnThis is an LCD test")
