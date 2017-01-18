@@ -113,7 +113,7 @@ def setText_norefresh(text):
         bus.write_byte_data(DISPLAY_TEXT_ADDR, 0x40, ord(c))
 
 # example code
-if __name__==__main__:
+if __name__== '__main__':
     setText("Hello worldnThis is an LCD test")
     setRGB(0, 128, 64)
     for c in range(0,255):
