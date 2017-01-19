@@ -153,8 +153,8 @@ def Set_Display(displayText):
 
 def Set_Display(textTop, textBottom):
     # Printing instead of setText for debugging
-    # setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
-    print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    #print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
 
 def Set_Actuators():
