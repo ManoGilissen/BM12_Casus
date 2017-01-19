@@ -1,2 +1,2 @@
-# BM12_Casus
-BM12 Domotica casus project
+# DSPNZR
+BM12 casus project
