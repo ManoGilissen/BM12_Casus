@@ -1,5 +1,5 @@
-from grove_rgb_lcd import *
-import time
+# from grove_rgb_lcd import *
+from time import sleep, time
 
 
 STATE_INACTIVE                      = 0
@@ -10,26 +10,44 @@ STATE_ALARMING                      = 4
 STATE_NOTIFYING                     = 5
 
 INPUT_NONE                          = 0
-INPUT_BUTTON_1_PRESS                = 1  # Power button #
-INPUT_BUTTON_2_PRESS                = 2  # Function button #
+INPUT_BUTTON_1_PRESS                = 1         # Power button
+INPUT_BUTTON_2_PRESS                = 2         # Function button
 
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
-COLOR_RED                           = [255, 000, 000]
-COLOR_GREEN                         = [000, 255, 000]
+DISPENSE_DURATION                   = 4
+
+TONE_DISPENSING                     = 440       # Note A4
+TONE_ALARMING                       = 2093      # Note C6
+TONE_SILENCE                        = -1
+
+MAX_DISPLAY_CHARS                   = 32
+MAX_LINE_CHARS                      = 16
+
+COLOR_RED                           = [255, 100, 100]
+COLOR_GREEN                         = [100, 255, 100]
+COLOR_BLUE                          = [100, 100, 255]
 COLOR_WHITE                         = [255, 255, 255]
-COLOR_DIMMED                        = [128, 128, 128]
+COLOR_ORANGE                        = [255, 165, 000]
+COLOR_DIMMED                        = [100, 100, 100]
 
-DISPENSE_TIMESTAMPS                 = [1484850000, 1484857200, 1484863400]
+DISPENSE_TIMESTAMPS                 = [
+    1484846000,
+    1484850000,
+    1484854000,
+    1484858000
+]
 
-systemState                         = STATE_INACTIVE
+systemState                         = STATE_ACTIVE
 ledColor                            = COLOR_RED
 rgbColor                            = COLOR_DIMMED
+buzzerTone                          = TONE_SILENCE
 
 
 def Start():
-    Actuate()
-    Intro()
+    Set_Actuators()
+    Check_Timestamps()
+    Play_Intro()
     Update()
 
 
@@ -40,35 +58,42 @@ def Update():
         Inactive()
     elif systemState == STATE_ACTIVE:
         Active()
-    elif systemState == STATE_DISPENSING:
-        Inactive()
     elif systemState == STATE_DISPENSED:
         Dispensed()
     elif systemState == STATE_ALARMING:
-        Inactive()
+        Alarming()
     elif systemState == STATE_NOTIFYING:
-        Inactive()
+        Notifying()
 
-    time.sleep(UPDATE_INTERVAL)
-    Display()
+    sleep(UPDATE_INTERVAL)
     Update()
-
-
-def Display():
-    global systemState
-    # Display relevant information to LCD
-
-
-def Actuate():
-    setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
-    # set LED color #
 
 
 def Dispense():
     global systemState
-    # Dispense next medicine blister
-    systemState = STATE_DISPENSING
+    global rgbColor
+    global ledColor
+    global buzzerTone
+
     DISPENSE_TIMESTAMPS.pop(0)
+
+    systemState                     = STATE_DISPENSING
+    rgbColor                        = COLOR_BLUE
+    ledColor                        = COLOR_BLUE
+    buzzerTone                      = TONE_DISPENSING
+
+    Set_Actuators()
+    Set_Display("  Uw medicatie  ", "wordt uitgegeven")
+
+    sleep(DISPENSE_DURATION)
+
+    systemState                     = STATE_DISPENSED
+    rgbColor                        = COLOR_WHITE
+    ledColor                        = COLOR_ORANGE
+    buzzerTone                      = TONE_ALARMING
+
+    Set_Actuators()
+    Set_Display(" Uw medicatie ", "  ligt gereed   ")
 
 
 def Inactive():
@@ -76,40 +101,93 @@ def Inactive():
 
 
 def Active():
-    if Get_Input() == INPUT_BUTTON_1_PRESS:
+    if Get_Input() == INPUT_BUTTON_1_PRESS or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
-        # Discard planned dispense moment
-        # Plan new dispense moment
     else:
-        # Check whether time matches planned dispense moment
-        if time.time() > DISPENSE_TIMESTAMPS[0]:
-            Dispense()
+        Set_Display("Volgende inname:", Get_Remaining())
 
 
 def Dispensed():
     global systemState
+    # Read ultra sonic sensor value
+
+    # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
+        # Conclude blister taken by user
+        # systemState = STATE_ACTIVE
+
+    # if time() > TIME_ALARM_USER:
+        # New alarm to alert user to take blister
+
+    # if time() > TIME_ALERT_RESPONDERS:
+        # Alert connected responders about user not taking blister
+        # systemState = STATE_NOTIFYING
 
 
-def Intro():
-    setText("==-  MEDIDO  -==\n==-   2000   -==")
-    time.sleep(INTRO_DURATION)
+def Alarming():
+    global systemState
+
+
+def Notifying():
+    global systemState
+
+
+def Get_Input():
+    # Retrieve and return user button input
+    # Check for button release to avoid double input due to short update interval
+    return INPUT_NONE
+
+
+def Get_Remaining():
+    # Return readable time to next dispense
+    minutes, seconds    = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
+    hours,   minutes    = divmod(minutes, 60)
+    return("    " + "%02d:%02d:%02d" % (hours, minutes, seconds) + "    ")
+
+
+def Set_Display(displayText):
+    if len(displayText) <= MAX_DISPLAY_CHARS:
+        Set_Display(displayText[:MAX_LINE_CHARS], displayText[MAX_LINE_CHARS:])
+
+
+def Set_Display(textTop, textBottom):
+    # Printing instead of setText for debugging
+    # setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+
+
+def Set_Actuators():
+    global systemState
+
+    # setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
+    # setLED(ledColor[0], ledColor[0], ledColor[0])
+    # setBuzzer(buzzerTone)
 
 
 def Check_Active():
     global systemState
     global ledColor
     global rgbColor
+
     # Check and process power button input
     if Get_Input() == INPUT_BUTTON_2_PRESS:
         systemState     = STATE_ACTIVE  if systemState == STATE_INACTIVE else STATE_INACTIVE
         ledColor        = COLOR_RED     if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor        = COLOR_DIMMED  if systemState == STATE_INACTIVE else COLOR_WHITE
-        Actuate()
+        Set_Actuators()
 
 
-def Get_Input():
-    # Retrieve and return user input
-    return INPUT_NONE
+def Check_Timestamps():
+    global DISPENSE_TIMESTAMPS
+
+    # Remove expired timestamps
+    for timestamp in DISPENSE_TIMESTAMPS:
+        if timestamp < int(time()):
+            DISPENSE_TIMESTAMPS.remove(timestamp)
+
+
+def Play_Intro():
+    Set_Display("=-   MEDIDO   -=", "=-    2000    -=")
+    sleep(INTRO_DURATION)
 
 
 Start()
