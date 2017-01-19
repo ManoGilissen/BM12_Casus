@@ -41,7 +41,7 @@ grovepi.pinMode(button, "INPUT")
 buttonState = 0     # Current state of the button
 lastDebounceTime = 0    # the last time the output pin was toggled
 druk = False    #boolean om aan te geven of er gedrukt is
-tijdseenheid = 500  #how long the button was held (ms) & tijd tussen het drukken
+tijdseenheid = 2000  #how long the button was held (ms) & tijd tussen het drukken
 begindruk = 0   #tijd zodra de knop ingedrukt wordt
 einddruk = 0    # tijd zodra de knop losgelaten wordt
 
