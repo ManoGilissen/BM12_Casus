@@ -201,12 +201,12 @@ def checkButton():
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
                 print("Short press")
-                setDisplay("Short press", " ")
+                Set_Display("Short press", " ")
                 # Shortpress
                 #  Alarm moet worden uitgezet
             else:
                 print("Long press")
-                setDisplay("Long press", " ")
+                Set_Display("Long press", " ")
                 # Longpress
                 # Medicatie moet voortijdig gepakt worden
 
