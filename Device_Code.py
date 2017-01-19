@@ -182,16 +182,17 @@ def Set_Actuators():
     # setBuzzer(buzzerTone)
 
 def checkButton():
+    global druk
     buttonState = grovepi.digitalRead(button)
     if buttonState == 0:  # knop is ingedrukt
         #lastDebounceTime = int(round(time.time() * 1000))
-        if druk == false:
-            druk = true
+        if druk == False:
+            druk = True
             begindruk = int(time.time() * 1000)
 
     elif buttonState == 1:  # knop is niet ingedrukt
-        if druk == true:  # er wordt losgelaten nadat er gedrukt is
-            druk = false
+        if druk == True:  # er wordt losgelaten nadat er gedrukt is
+            druk = False
             einddruk = int(time.time() * 1000)
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
