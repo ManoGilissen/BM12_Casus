@@ -37,7 +37,7 @@ COLOR_DIMMED                        = [100, 100, 100]
 
 # Aantal variablen voor het indrukken van de knop
 button = 3  #Knop is aangesloten op D3
-pinMode(button, "INPUT")
+grovepi.pinMode(button, "INPUT")
 buttonState = 0     # Current state of the button
 lastDebounceTime = 0    # the last time the output pin was toggled
 druk = False    #boolean om aan te geven of er gedrukt is
