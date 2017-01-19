@@ -37,6 +37,7 @@ COLOR_DIMMED                        = [100, 100, 100]
 
 # Aantal variablen voor het indrukken van de knop
 button = 3  #Knop is aangesloten op D3
+pinMode(button, "INPUT")
 buttonState = 0     # Current state of the button
 lastDebounceTime = 0    # the last time the output pin was toggled
 druk = False    #boolean om aan te geven of er gedrukt is
@@ -183,15 +184,15 @@ def Set_Actuators():
 def checkButton():
     buttonState = grovepi.digitalRead(button)
     if buttonState == 0:  # knop is ingedrukt
-        lastDebounceTime = int(round(time.time() * 1000))
+        #lastDebounceTime = int(round(time.time() * 1000))
         if druk == false:
             druk = true
-            begindruk = int(round(time.time() * 1000))
+            begindruk = int(time.time() * 1000)
 
     elif buttonState == 1:  # knop is niet ingedrukt
         if druk == true:  # er wordt losgelaten nadat er gedrukt is
             druk = false
-            einddruk = int(round(time.time() * 1000))
+            einddruk = int(time.time() * 1000)
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
                 print("Short press")
