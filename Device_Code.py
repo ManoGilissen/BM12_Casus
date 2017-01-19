@@ -1,49 +1,46 @@
 from grove_rgb_lcd import *
 from time import *
+
 import grovepi
 import random
 
-# Verschillende staten van het programma
-STATE_INACTIVE = 0
-STATE_ACTIVE = 1
-STATE_DISPENSING = 2
-STATE_DISPENSED = 3
-STATE_ALARMING = 4
-STATE_NOTIFYING = 5
+# System states
+STATE_INACTIVE                      = 0
+STATE_ACTIVE                        = 1
+STATE_DISPENSING                    = 2
+STATE_DISPENSED                     = 3
+STATE_ALARMING                      = 4
+STATE_NOTIFYING                     = 5
 
-#INPUT_NONE                          = 0
-#INPUT_BUTTON_1_PRESS                = 1         # Power button
-#INPUT_BUTTON_2_PRESS                = 2         # Function button
+# Input identifiers
+INPUT_NONE                          = 0
+INPUT_TYPE_1                        = 1     # Button 1 short press
+INPUT_TYPE_2                        = 2     # Button 1 long press
+INPUT_TYPE_3                        = 3     # Power button press
 
+# Event durations
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
 
-# Geluiden voor het alarm
+# Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
 TONE_ALARMING                       = 2093      # Note C6
 TONE_SILENCE                        = -1
 
-# Aantal characters dat getoond kan worden op lcd scherm
+# Hardware constants
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
+BUTTON_1_PIN                        = 3
+BUTTON_2_PIN                        = 5
 
+# Color constants
 COLOR_RED                           = [255, 100, 100]
 COLOR_GREEN                         = [100, 255, 100]
 COLOR_BLUE                          = [100, 100, 255]
 COLOR_WHITE                         = [255, 255, 255]
 COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
-
-# Aantal variablen voor het indrukken van de knop
-button = 3  #Knop is aangesloten op D3
-grovepi.pinMode(button, "INPUT")
-buttonState = 0     # Current state of the button
-lastDebounceTime = 0    # the last time the output pin was toggled
-druk = False    #boolean om aan te geven of er gedrukt is
-tijdseenheid = 500  #how long the button was held (ms) & tijd tussen het drukken
-begindruk = 0   #tijd zodra de knop ingedrukt wordt
-einddruk = 0    # tijd zodra de knop losgelaten wordt
 
 DISPENSE_TIMESTAMPS                 = [
     1484846000,
@@ -52,25 +49,33 @@ DISPENSE_TIMESTAMPS                 = [
     1484858000
 ]
 
+# Button input variables
+button1Down                         = False
+button2Down                         = False
+inputStart                          = 0         # Timestamp start button press
+inputRelease                        = 0         # Timestamp end button press
+inputInterval                       = 500       # Long press threshold
+
+# System and hardware state variables
 systemState                         = STATE_ACTIVE
+userInput                           = INPUT_NONE
 ledColor                            = COLOR_RED
 rgbColor                            = COLOR_DIMMED
 buzzerTone                          = TONE_SILENCE
 
 
 def Start():
-    #Set_Actuators()
-    #Check_Timestamps()
+    Set_Hardware()
+    Set_Actuators()
+    Check_Timestamps()
     Play_Intro()
-    # Update()
-    #Alarming()
-    checkButton()
 
 
 def Update():
+    Check_Input()
     Check_Active()
 
-    if systemState == STATE_INACTIVE:
+    if   systemState == STATE_INACTIVE:
         Inactive()
     elif systemState == STATE_ACTIVE:
         Active()
@@ -82,7 +87,6 @@ def Update():
         Notifying()
 
     sleep(UPDATE_INTERVAL)
-    Update()
 
 
 def Dispense():
@@ -109,7 +113,7 @@ def Dispense():
     buzzerTone                      = TONE_ALARMING
 
     Set_Actuators()
-    Set_Display(" Uw medicatie ", "  ligt gereed   ")
+    Set_Display("  Uw medicatie  ", "  ligt gereed   ")
 
 
 def Inactive():
@@ -117,7 +121,7 @@ def Inactive():
 
 
 def Active():
-    if Get_Input() == INPUT_BUTTON_1_PRESS or DISPENSE_TIMESTAMPS[0] < int(time()):
+    if userInput == INPUT_TYPE_1 or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
     else:
         Set_Display("Volgende inname:", Get_Remaining())
@@ -142,22 +146,19 @@ def Dispensed():
 def Alarming():
     global systemState
     Set_Display("     ALARM      ", " ")
+    '''
     for i in range(0, 255):
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        sleep(.1)
+        sleep(0.1)
+    '''
+
 
 def Notifying():
     global systemState
 
 
-def Get_Input():
-    # Retrieve and return user button input
-    # Check for button release to avoid double input due to short update interval
-    return INPUT_NONE
-
-
+# Returns readable time until next dispense
 def Get_Remaining():
-    # Return readable time to next dispense
     minutes, seconds = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
     hours,   minutes = divmod(minutes, 60)
     return("    " + "%02d:%02d:%02d" % (hours, minutes, seconds) + "    ")
@@ -169,9 +170,8 @@ def Set_Display(displayText):
 
 
 def Set_Display(textTop, textBottom):
-    # Printing instead of setText for debugging
-    setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
-    #print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    # setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
 
 def Set_Actuators():
@@ -181,34 +181,10 @@ def Set_Actuators():
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
 
-def checkButton():
-    global druk
-    global begindruk
-    global einddruk
-    global tijdseenheid
 
-    buttonState = grovepi.digitalRead(button)
-    if buttonState == 1:  # knop is ingedrukt
-        #lastDebounceTime = int(round(time.time() * 1000))
-        if druk == False:
-            druk = True
-            begindruk = int(time() * 1000)
-
-    elif buttonState == 0:  # knop is niet ingedrukt
-        if druk == True:  # er wordt losgelaten nadat er gedrukt is
-            druk = False
-            einddruk = int(time() * 1000)
-
-            if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
-                print("Short press")
-                Set_Display("Short press", " ")
-                # Shortpress
-                #  Alarm moet worden uitgezet
-            else:
-                print("Long press")
-                Set_Display("Long press", " ")
-                # Longpress
-                # Medicatie moet voortijdig gepakt worden
+def Set_Hardware():
+    grovepi.pinMode(BUTTON_1_PIN, "INPUT")
+    grovepi.pinMode(BUTTON_2_PIN, "INPUT")
 
 
 def Check_Active():
@@ -217,7 +193,7 @@ def Check_Active():
     global rgbColor
 
     # Check and process power button input
-    if Get_Input() == INPUT_BUTTON_2_PRESS:
+    if userInput == INPUT_TYPE_3:
         systemState     = STATE_ACTIVE  if systemState == STATE_INACTIVE else STATE_INACTIVE
         ledColor        = COLOR_RED     if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor        = COLOR_DIMMED  if systemState == STATE_INACTIVE else COLOR_WHITE
@@ -233,6 +209,43 @@ def Check_Timestamps():
             DISPENSE_TIMESTAMPS.remove(timestamp)
 
 
+def Check_Input():
+    global button1Pressed
+    global button2Pressed
+    global inputStart
+    global inputRelease
+    global inputInterval
+    global userInput
+
+    # Check and set current button input
+
+    userInput = INPUT_NONE
+
+    if grovepi.digitalRead(BUTTON_1_PIN) == 1:      # Button 1 is being pressed
+        if not button1Pressed:
+            button1Pressed          = True
+            inputStart              = int(time() * 1000)
+    else:                                           # Button 1 is not being pressed
+        if button1Pressed:                          # Button 1 is released
+            button1Pressed          = False
+            inputRelease            = int(time() * 1000)
+            inputDuration           = (inputRelease - inputStart)
+            if inputDuration <= inputInterval:
+                Set_Display("Short press")
+                userInput = INPUT_TYPE_1            # Button 1 short press
+            else:
+                Set_Display("Long press")
+                userInput = INPUT_TYPE_1            # Button 1 long press
+
+    if grovepi.digitalRead(BUTTON_2_PIN) == 1:      # Button 2 is being pressed
+        if not button2Pressed:
+            button2Pressed          = True
+    else:                                           # Button 2 is not being pressed
+        if button2Pressed:                          # Button 2 is released
+            button2Pressed          = False
+            userInput               = INPUT_TYPE_3  # Button 2 pressed
+
+
 def Play_Intro():
     Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
@@ -241,5 +254,5 @@ def Play_Intro():
 Start()
 
 while True:
-    checkButton()
+    Update()
 
