@@ -188,12 +188,12 @@ def checkButton():
         #lastDebounceTime = int(round(time.time() * 1000))
         if druk == False:
             druk = True
-            begindruk = int(time.time() * 1000)
+            begindruk = int(time() * 1000)
 
     elif buttonState == 1:  # knop is niet ingedrukt
         if druk == True:  # er wordt losgelaten nadat er gedrukt is
             druk = False
-            einddruk = int(time.time() * 1000)
+            einddruk = int(time() * 1000)
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
                 print("Short press")
