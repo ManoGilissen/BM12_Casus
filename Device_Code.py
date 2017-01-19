@@ -1,6 +1,7 @@
 from grove_rgb_lcd import *
 from time import *
 import grovepi
+import random
 
 # Verschillende staten van het programma
 STATE_INACTIVE = 0
