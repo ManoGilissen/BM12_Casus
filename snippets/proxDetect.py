@@ -10,16 +10,16 @@ def proxDetect():
     global ultrasonicPort
     global present
 
-    limit = 10          # Eventueel bijstellen: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
+    limit = 10          # Eventueel andere range: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
 
     try:
         # Afstand bepalen m.b.v. sensor
-        ultrasonicDetected = grovepi.ultrasonicRead(ultrasonicPort)
-        print(ultrasonicDetected)
-        if ultrasonicDetected > limit:
+        ultrasonicDetect = grovepi.ultrasonicRead(ultrasonicPort)
+        print(ultrasonicDetect)
+        if ultrasonicDetect > limit:
             print("Afstand is groter dan limit. Geen blister aanwezig.")
             present = False
-        elif ultrasonicDetected <= limit:
+        elif ultrasonicDetect <= limit:
             print("Afstand is kleiner dan limit. Blister aanwezig.")
             present = True
 
