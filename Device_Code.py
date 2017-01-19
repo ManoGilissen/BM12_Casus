@@ -1,5 +1,6 @@
 from grove_rgb_lcd import *
 from time import *
+import grovepi
 
 # Verschillende staten van het programma
 STATE_INACTIVE = 0
@@ -34,6 +35,7 @@ COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
 # Aantal variablen voor het indrukken van de knop
+button = 3  #Knop is aangesloten op D3
 buttonState = 0     # Current state of the button
 lastDebounceTime = 0    # the last time the output pin was toggled
 druk = False    #boolean om aan te geven of er gedrukt is
@@ -60,6 +62,7 @@ def Start():
     Play_Intro()
     # Update()
     Alarming()
+    checkButton()
 
 
 def Update():
@@ -136,11 +139,10 @@ def Dispensed():
 
 def Alarming():
     global systemState
-    Set_Display("alarm", " ")
-    #setRGB(0, 128, 64)
-    for c in range(0,255):
-        setRGB(c,255-c,0)
-        sleep(0.01)
+    Set_Display("     ALARM      ", " ")
+    for i in range(0, 255):
+        setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        time.sleep(.1)
 
 def Notifying():
     global systemState
@@ -178,6 +180,7 @@ def Set_Actuators():
     # setBuzzer(buzzerTone)
 
 def checkButton():
+    buttonState = digitalRead(button)
     if buttonState == 0:  # knop is ingedrukt
         lastDebounceTime = int(round(time.time() * 1000))
         if druk == false:
@@ -190,13 +193,15 @@ def checkButton():
             einddruk = int(round(time.time() * 1000))
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
-                print("short press")
-		#Shortpress
-                #Alarm moet worden uitgezet
+                print("Short press")
+                setDisplay("Short press", " ")
+                # Shortpress
+                #  Alarm moet worden uitgezet
             else:
-		print("Long press")
-                #Longpress
-                #Medicatie moet voortijdig gepakt worden
+                print("Long press")
+                setDisplay("Long press", " ")
+                # Longpress
+                # Medicatie moet voortijdig gepakt worden
 
 
 def Check_Active():
@@ -222,7 +227,7 @@ def Check_Timestamps():
 
 
 def Play_Intro():
-    Set_Display("   DSPNZR   ", "    2000   ")
+    Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
 
