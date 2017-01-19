@@ -183,6 +183,10 @@ def Set_Actuators():
 
 def checkButton():
     global druk
+    global begindruk
+    global einddruk
+    global tijdseenheid
+
     buttonState = grovepi.digitalRead(button)
     if buttonState == 0:  # knop is ingedrukt
         #lastDebounceTime = int(round(time.time() * 1000))
