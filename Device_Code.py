@@ -1,17 +1,17 @@
 from grove_rgb_lcd import *
-from time import sleep, time
+import time
 
 # Verschillende staten van het programma
-STATE_INACTIVE                      = 0
-STATE_ACTIVE                        = 1
-STATE_DISPENSING                    = 2
-STATE_DISPENSED                     = 3
-STATE_ALARMING                      = 4
-STATE_NOTIFYING                     = 5
+STATE_INACTIVE = 0
+STATE_ACTIVE = 1
+STATE_DISPENSING = 2
+STATE_DISPENSED = 3
+STATE_ALARMING = 4
+STATE_NOTIFYING = 5
 
-INPUT_NONE                          = 0
-INPUT_BUTTON_1_PRESS                = 1         # Power button
-INPUT_BUTTON_2_PRESS                = 2         # Function button
+#INPUT_NONE                          = 0
+#INPUT_BUTTON_1_PRESS                = 1         # Power button
+#INPUT_BUTTON_2_PRESS                = 2         # Function button
 
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
@@ -33,6 +33,14 @@ COLOR_WHITE                         = [255, 255, 255]
 COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
+# Aantal variablen voor het indrukken van de knop
+buttonState = 0     # Current state of the button
+lastDebounceTime = 0    # the last time the output pin was toggled
+druk = false    #boolean om aan te geven of er gedrukt is
+tijdseenheid = 500  #how long the button was held (ms) & tijd tussen het drukken
+begindruk   #tijd zodra de knop ingedrukt wordt
+einddruk    # tijd zodra de knop losgelaten wordt
+
 DISPENSE_TIMESTAMPS                 = [
     1484846000,
     1484850000,
@@ -50,7 +58,8 @@ def Start():
     Set_Actuators()
     Check_Timestamps()
     Play_Intro()
-    Update()
+    # Update()
+    Alarming()
 
 
 def Update():
@@ -127,7 +136,10 @@ def Dispensed():
 
 def Alarming():
     global systemState
-
+    setRGB(0, 128, 64)
+    for c in range(0,255):
+        setRGB(c,255-c, 0)
+        time.sleep(1)
 
 def Notifying():
     global systemState
@@ -141,8 +153,8 @@ def Get_Input():
 
 def Get_Remaining():
     # Return readable time to next dispense
-    minutes, seconds    = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
-    hours,   minutes    = divmod(minutes, 60)
+    minutes, seconds = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
+    hours,   minutes = divmod(minutes, 60)
     return("    " + "%02d:%02d:%02d" % (hours, minutes, seconds) + "    ")
 
 
@@ -163,6 +175,25 @@ def Set_Actuators():
     # setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
+
+def checkButton():
+    if buttonState == 0:  # knop is ingedrukt
+        lastDebounceTime = int(round(time.time() * 1000))
+        if druk == false:
+            druk = true
+            begindruk = int(round(time.time() * 1000))
+
+    elif buttonState == 1:  # knop is niet ingedrukt
+        if druk == true:  # er wordt losgelaten nadat er gedrukt is
+            druk = false
+            einddruk = int(round(time.time() * 1000))
+
+            if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
+                #Shortpress
+                #Alarm moet worden uitgezet
+            else:
+                #Longpress
+                #Medicatie moet voortijdig gepakt worden
 
 
 def Check_Active():
@@ -188,7 +219,7 @@ def Check_Timestamps():
 
 
 def Play_Intro():
-    Set_Display("=-   MEDIDO   -=", "=-    2000    -=")
+    Set_Display("   DSPNZR   ", "    2000   ")
     sleep(INTRO_DURATION)
 
 

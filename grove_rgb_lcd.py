@@ -43,7 +43,7 @@ THE SOFTWARE.
 # 	putting a single string of text onto the display
 # 	Doesn't support anything clever, cursors or anything
 
-import time,sys
+import time, sys
 
 if sys.platform == 'uwp':
     import winrt_smbus as smbus
