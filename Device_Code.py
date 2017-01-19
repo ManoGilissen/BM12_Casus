@@ -188,13 +188,13 @@ def checkButton():
     global tijdseenheid
 
     buttonState = grovepi.digitalRead(button)
-    if buttonState == 0:  # knop is ingedrukt
+    if buttonState == 1:  # knop is ingedrukt
         #lastDebounceTime = int(round(time.time() * 1000))
         if druk == False:
             druk = True
             begindruk = int(time() * 1000)
 
-    elif buttonState == 1:  # knop is niet ingedrukt
+    elif buttonState == 0:  # knop is niet ingedrukt
         if druk == True:  # er wordt losgelaten nadat er gedrukt is
             druk = False
             einddruk = int(time() * 1000)
