@@ -1,5 +1,5 @@
 from grove_rgb_lcd import *
-import time
+from time import *
 
 # Verschillende staten van het programma
 STATE_INACTIVE = 0
@@ -36,10 +36,10 @@ COLOR_DIMMED                        = [100, 100, 100]
 # Aantal variablen voor het indrukken van de knop
 buttonState = 0     # Current state of the button
 lastDebounceTime = 0    # the last time the output pin was toggled
-druk = false    #boolean om aan te geven of er gedrukt is
+druk = False    #boolean om aan te geven of er gedrukt is
 tijdseenheid = 500  #how long the button was held (ms) & tijd tussen het drukken
-begindruk   #tijd zodra de knop ingedrukt wordt
-einddruk    # tijd zodra de knop losgelaten wordt
+begindruk = 0   #tijd zodra de knop ingedrukt wordt
+einddruk = 0    # tijd zodra de knop losgelaten wordt
 
 DISPENSE_TIMESTAMPS                 = [
     1484846000,
@@ -55,8 +55,8 @@ buzzerTone                          = TONE_SILENCE
 
 
 def Start():
-    Set_Actuators()
-    Check_Timestamps()
+    #Set_Actuators()
+    #Check_Timestamps()
     Play_Intro()
     # Update()
     Alarming()
@@ -136,10 +136,11 @@ def Dispensed():
 
 def Alarming():
     global systemState
-    setRGB(0, 128, 64)
+    Set_Display("alarm", " ")
+    #setRGB(0, 128, 64)
     for c in range(0,255):
-        setRGB(c,255-c, 0)
-        time.sleep(1)
+        setRGB(c,255-c,0)
+        sleep(0.01)
 
 def Notifying():
     global systemState
@@ -189,9 +190,11 @@ def checkButton():
             einddruk = int(round(time.time() * 1000))
 
             if (einddruk - begindruk) <= tijdseenheid:  # berekening van de lengte van de druk
-                #Shortpress
+                print("short press")
+		#Shortpress
                 #Alarm moet worden uitgezet
             else:
+		print("Long press")
                 #Longpress
                 #Medicatie moet voortijdig gepakt worden
 
