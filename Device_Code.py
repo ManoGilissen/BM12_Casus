@@ -62,7 +62,7 @@ def Start():
     #Check_Timestamps()
     Play_Intro()
     # Update()
-    Alarming()
+    #Alarming()
     checkButton()
 
 
@@ -181,7 +181,7 @@ def Set_Actuators():
     # setBuzzer(buzzerTone)
 
 def checkButton():
-    buttonState = digitalRead(button)
+    buttonState = grovepi.digitalRead(button)
     if buttonState == 0:  # knop is ingedrukt
         lastDebounceTime = int(round(time.time() * 1000))
         if druk == false:
