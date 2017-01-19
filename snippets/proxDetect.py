@@ -24,3 +24,5 @@ while True:
         print ("TypeError")
     except IOError:
         print ("IOError")
+
+print("Exit")
