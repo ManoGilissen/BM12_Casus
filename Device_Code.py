@@ -235,3 +235,7 @@ def Play_Intro():
 
 
 Start()
+
+while True:
+    checkButton()
+
