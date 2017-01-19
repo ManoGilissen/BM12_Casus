@@ -1,7 +1,7 @@
-# from grove_rgb_lcd import *
+from grove_rgb_lcd import *
 from time import sleep, time
 
-
+# Verschillende staten van het programma
 STATE_INACTIVE                      = 0
 STATE_ACTIVE                        = 1
 STATE_DISPENSING                    = 2
@@ -17,10 +17,12 @@ UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
 
+# Geluiden voor het alarm
 TONE_DISPENSING                     = 440       # Note A4
 TONE_ALARMING                       = 2093      # Note C6
 TONE_SILENCE                        = -1
 
+# Aantal characters dat getoond kan worden op lcd scherm
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
 
@@ -54,7 +56,7 @@ def Start():
 def Update():
     Check_Active()
 
-    if   systemState == STATE_INACTIVE:
+    if systemState == STATE_INACTIVE:
         Inactive()
     elif systemState == STATE_ACTIVE:
         Active()
