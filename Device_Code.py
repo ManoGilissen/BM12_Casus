@@ -143,7 +143,7 @@ def Alarming():
     Set_Display("     ALARM      ", " ")
     for i in range(0, 255):
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        time.sleep(.1)
+        sleep(.1)
 
 def Notifying():
     global systemState
