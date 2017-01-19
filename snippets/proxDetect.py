@@ -6,7 +6,7 @@ import time
 ultrasonicPort = 4      # Poortnummer voor de ultrasonic ranger (standaard D4)
 present = False         # Of een blister aanwezig is of niet
 
-def proxDetect:
+def proxDetect():
     global ultrasonicPort
     global present
 
@@ -24,9 +24,9 @@ def proxDetect:
             present = True
 
     except TypeError:
-        print ("TypeError")
+        print("TypeError")
     except IOError:
-        print ("IOError")
+        print("IOError")
 
 while True:
     proxDetect()
