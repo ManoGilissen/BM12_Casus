@@ -1,7 +1,7 @@
 # Snippet voor de detectie van een blister in de dispenser
 # Zorg dat grovepi.py in dezelfde map staat als onderstaande snippet
 import grovepi
-import time
+import time             # Alleen nodig voor de while loop als bewijs dat het werkt
 
 ultrasonicPort = 4      # Poortnummer voor de ultrasonic ranger (standaard D4)
 present = False         # Of een blister aanwezig is of niet
@@ -10,7 +10,7 @@ def proxDetect():
     global ultrasonicPort
     global present
 
-    limit = 10
+    limit = 10          # Eventueel bijstellen: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
 
     try:
         # Afstand bepalen m.b.v. sensor
@@ -28,6 +28,7 @@ def proxDetect():
     except IOError:
         print("IOError")
 
+# Bewijs dat het werkt
 while True:
     proxDetect()
     print(present)
