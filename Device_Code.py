@@ -43,15 +43,17 @@ COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
 DISPENSE_TIMESTAMPS                 = [
-    1484846000,
-    1484850000,
-    1484854000,
-    1484858000
+    1485337560,
+    1486850000,
+    1486854000,
+    1486858000
 ]
 
 # Button input variables
 button1Down                         = False
 button2Down                         = False
+button1Pressed		= False
+button2Pressed		= False
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
@@ -63,6 +65,10 @@ ledColor                            = COLOR_RED
 rgbColor                            = COLOR_DIMMED
 buzzerTone                          = TONE_SILENCE
 
+# Mail variables
+senderMail	= "dspnzr2000@gmail.com"
+recipientMail	= "svenheinen93@gmail.com"	# Fixed variables for testing
+patientName 	= "Anne Beertens"
 
 def Start():
     Set_Hardware()
@@ -146,9 +152,11 @@ def Dispensed():
 def Alarming():
     global systemState
     Set_Display("     ALARM      ", " ")
+
+    setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+   
     '''
     for i in range(0, 255):
-        setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         sleep(0.1)
     '''
 
@@ -170,7 +178,7 @@ def Set_Display(displayText):
 
 
 def Set_Display(textTop, textBottom):
-    # setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
+    setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
     print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
 
@@ -247,6 +255,7 @@ def Check_Input():
 
 
 def Play_Intro():
+    setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
