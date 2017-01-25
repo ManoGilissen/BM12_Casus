@@ -133,10 +133,9 @@ def Active():
     if nextDispense == -1:
         Set_Next_Dispense()
 
-    if userInput == INPUT_TYPE_SHORT or DISPENSE_TIMESTAMPS[0] < int(time()):
+    if userInput == INPUT_TYPE_SHORT or nextDispense <= (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60):
         Dispense()
-    else:
-        if (remainingTime != Get_Remaining()):
+    elif (remainingTime != Get_Remaining()):
             remainingTime = Get_Remaining()
             Set_Display("Volgende inname:", Get_Remaining())
 
