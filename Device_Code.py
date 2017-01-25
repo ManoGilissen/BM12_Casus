@@ -14,9 +14,9 @@ STATE_NOTIFYING                     = 5
 
 # Input identifiers
 INPUT_NONE                          = 0
-INPUT_TYPE_1                        = 1     # Button 1 short press
-INPUT_TYPE_2                        = 2     # Button 1 long press
-INPUT_TYPE_3                        = 3     # Power button press
+INPUT_TYPE_SHORT                        = 1     # Button 1 short press
+INPUT_TYPE_LONG                        = 2     # Button 1 long press
+# INPUT_TYPE_3                        = 3     # Power button press
 
 # Event durations
 UPDATE_INTERVAL                     = 0.05
@@ -32,7 +32,7 @@ TONE_SILENCE                        = -1
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
 BUTTON_1_PIN                        = 3
-BUTTON_2_PIN                        = 5
+#BUTTON_2_PIN                        = 5
 
 # Color constants
 COLOR_RED                           = [255, 100, 100]
@@ -51,7 +51,7 @@ DISPENSE_TIMESTAMPS                 = [
 
 # Button input variables
 button1Down                         = False
-button2Down                         = False
+# button2Down                         = False
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
@@ -121,7 +121,7 @@ def Inactive():
 
 
 def Active():
-    if userInput == INPUT_TYPE_1 or DISPENSE_TIMESTAMPS[0] < int(time()):
+    if userInput == INPUT_TYPE_SHORT or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
     else:
         Set_Display("Volgende inname:", Get_Remaining())
@@ -184,7 +184,7 @@ def Set_Actuators():
 
 def Set_Hardware():
     grovepi.pinMode(BUTTON_1_PIN, "INPUT")
-    grovepi.pinMode(BUTTON_2_PIN, "INPUT")
+    #grovepi.pinMode(BUTTON_2_PIN, "INPUT")
 
 
 def Check_Active():
@@ -193,11 +193,11 @@ def Check_Active():
     global rgbColor
 
     # Check and process power button input
-    if userInput == INPUT_TYPE_3:
+    '''if userInput == INPUT_TYPE_3:
         systemState     = STATE_ACTIVE  if systemState == STATE_INACTIVE else STATE_INACTIVE
         ledColor        = COLOR_RED     if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor        = COLOR_DIMMED  if systemState == STATE_INACTIVE else COLOR_WHITE
-        Set_Actuators()
+        Set_Actuators()'''
 
 
 def Check_Timestamps():
@@ -211,7 +211,7 @@ def Check_Timestamps():
 
 def Check_Input():
     global button1Pressed
-    global button2Pressed
+    # global button2Pressed
     global inputStart
     global inputRelease
     global inputInterval
@@ -232,18 +232,18 @@ def Check_Input():
             inputDuration           = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
                 Set_Display("Short press")
-                userInput = INPUT_TYPE_1            # Button 1 short press
+                userInput = INPUT_TYPE_SHORT            # Button 1 short press
             else:
                 Set_Display("Long press")
-                userInput = INPUT_TYPE_1            # Button 1 long press
+                userInput = INPUT_TYPE_LONG            # Button 1 long press
 
-    if grovepi.digitalRead(BUTTON_2_PIN) == 1:      # Button 2 is being pressed
+    '''if grovepi.digitalRead(BUTTON_2_PIN) == 1:      # Button 2 is being pressed
         if not button2Pressed:
             button2Pressed          = True
     else:                                           # Button 2 is not being pressed
         if button2Pressed:                          # Button 2 is released
             button2Pressed          = False
-            userInput               = INPUT_TYPE_3  # Button 2 pressed
+            userInput               = INPUT_TYPE_3  # Button 2 pressed'''
 
 
 def Play_Intro():
