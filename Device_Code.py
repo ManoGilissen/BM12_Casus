@@ -43,7 +43,7 @@ COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
 DISPENSE_TIMESTAMPS                 = [
-    1485337560,
+    1485341040,
     1484850000,
     1484854000,
     1484858000
@@ -52,6 +52,7 @@ DISPENSE_TIMESTAMPS                 = [
 # Button input variables
 button1Down                         = False
 # button2Down                         = False
+button1Pressed 				= False
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
@@ -72,6 +73,7 @@ def Start():
     Set_Hardware()
     Set_Actuators()
     Check_Timestamps()
+	logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Starting")
     Play_Intro()
 
 
@@ -118,7 +120,7 @@ def Dispense():
 
     Set_Actuators()
     Set_Display("  Uw medicatie  ", "  ligt gereed   ")
-
+    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Dispensed")
 
 def Inactive():
     global systemState
@@ -152,7 +154,7 @@ def Alarming():
     Set_Display("     ALARM      ", " ")
 
     setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-   
+   logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
     '''
     for i in range(0, 255):
         sleep(0.1)
@@ -161,7 +163,7 @@ def Alarming():
 
 def Notifying():
     global systemState
-
+	logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Notifying")
 
 # Returns readable time until next dispense
 def Get_Remaining():
@@ -257,6 +259,10 @@ def Play_Intro():
     Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
+def logWrite(logLine): # append a line to action.log
+	logFile = open("action.log", "a")
+	logFile.write(logLine + "\n")
+	logFile.close
 
 Start()
 
