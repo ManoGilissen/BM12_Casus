@@ -44,9 +44,9 @@ COLOR_DIMMED                        = [100, 100, 100]
 
 DISPENSE_TIMESTAMPS                 = [
     1485337560,
-    1486850000,
-    1486854000,
-    1486858000
+    1484850000,
+    1484854000,
+    1484858000
 ]
 
 # Button input variables
@@ -239,10 +239,10 @@ def Check_Input():
             inputRelease            = int(time() * 1000)
             inputDuration           = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
-                Set_Display("Short press")
+                Set_Display("Short press", " ")
                 userInput = INPUT_TYPE_1            # Button 1 short press
             else:
-                Set_Display("Long press")
+                Set_Display("Long press", " ")
                 userInput = INPUT_TYPE_1            # Button 1 long press
 
     if grovepi.digitalRead(BUTTON_2_PIN) == 1:      # Button 2 is being pressed
