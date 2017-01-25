@@ -242,9 +242,9 @@ def Check_Input():
             inputDuration           = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
                 userInput           = INPUT_TYPE_SHORT          # Short press
-            elif inputDuration <= powerInterval:
+            elif inputDuration < powerInterval:
                 userInput           = INPUT_TYPE_LONG           # Long press
-            else:
+            elif inputDuration >= powerInterval:
                 Set_Display("  Shutting down ", "    Goodbye     ")
                 userInput           = INPUT_TYPE_POWER          # Shutdown press
 
@@ -252,7 +252,7 @@ def Check_Input():
 def Play_Intro():
     logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Starting")
     setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    Set_Display("   Dispenser    ", "      2000      ")
+    Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
 
