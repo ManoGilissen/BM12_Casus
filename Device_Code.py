@@ -14,9 +14,9 @@ STATE_NOTIFYING                     = 5
 
 # Input identifiers
 INPUT_NONE                          = 0
-INPUT_TYPE_SHORT                    = 1     # Button 1 short press
-INPUT_TYPE_LONG                     = 2     # Button 1 long press
-INPUT_TYPE_POWER                    = 3
+INPUT_TYPE_SHORT                    = 1     # Short press
+INPUT_TYPE_LONG                     = 2     # Long press
+INPUT_TYPE_POWER                    = 3     # Power button press
 
 # Event durations
 UPDATE_INTERVAL                     = 0.05
@@ -32,8 +32,7 @@ TONE_SILENCE                        = -1
 # Hardware constants
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
-BUTTON_1_PIN                        = 3
-#BUTTON_2_PIN                        = 5
+BUTTON_PIN                          = 3
 
 # Color constants
 COLOR_RED                           = [255, 100, 100]
@@ -44,7 +43,7 @@ COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
 DISPENSE_TIMESTAMPS                 = [
-    1485337560,
+    1485341040,
     1484850000,
     1484854000,
     1484858000
@@ -97,7 +96,6 @@ def Update():
 
 
 def Dispense():
-    global systemState
     global rgbColor
     global ledColor
     global buzzerTone
@@ -105,7 +103,8 @@ def Dispense():
 
     DISPENSE_TIMESTAMPS.pop(0)
 
-    systemState                     = STATE_DISPENSING
+    Set_State(STATE_DISPENSING)
+
     rgbColor                        = COLOR_BLUE
     ledColor                        = COLOR_BLUE
     buzzerTone                      = TONE_DISPENSING
@@ -115,21 +114,20 @@ def Dispense():
 
     sleep(DISPENSE_DURATION)
 
+    Set_State(STATE_ALARMING)
+
     dispenseTime                    = int(time())
-    systemState                     = STATE_ALARMING
     rgbColor                        = COLOR_WHITE
     ledColor                        = COLOR_ORANGE
     buzzerTone                      = TONE_ALARMING
 
     Set_Actuators()
     Set_Display("  Uw medicatie  ", "  ligt gereed   ")
-
+    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
 
 def Inactive():
-    global systemState
-
     if userInput == INPUT_TYPE_SHORT:
-        systemState = STATE_ACTIVE
+        Set_State(STATE_ACTIVE)
 
 
 def Active():
@@ -156,10 +154,8 @@ def Dispensed():
 
 
 def Alarm():
-    global systemState
-
     if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
-        systemState = STATE_DISPENSED
+        Set_State(STATE_DISPENSED)
     else:
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
@@ -175,21 +171,26 @@ def Get_Remaining():
     return("    " + "%02d:%02d" % (hours, minutes) + "    ")
 
 
+def Set_State(newState):
+    global systemState
+
+    systemState = newState
+    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
+
+
 def Set_Display(textTop, textBottom):
     setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
     print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
 
 def Set_Actuators():
-    global systemState
-
     setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
 
 
 def Set_Hardware():
-    grovepi.pinMode(BUTTON_1_PIN, "INPUT")
+    grovepi.pinMode(BUTTON_PIN, "INPUT")
 
 
 def Check_Active():
@@ -215,7 +216,7 @@ def Check_Timestamps():
 
 
 def Check_Input():
-    global button1Pressed
+    global buttonPressed
     global inputStart
     global inputRelease
     global inputInterval
@@ -225,29 +226,36 @@ def Check_Input():
 
     userInput = INPUT_NONE
 
-    if grovepi.digitalRead(BUTTON_1_PIN) == 1:      # Button 1 is being pressed
-        if not button1Pressed:
-            button1Pressed          = True
+    if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 is being pressed
+        if not buttonPressed:
+            buttonPressed           = True
             inputStart              = int(time() * 1000)
-    else:                                           # Button 1 is not being pressed
-        if button1Pressed:                          # Button 1 is released
-            button1Pressed          = False
+        else:                                                   # Button 1 is not being pressed
+        if buttonPressed:                                       # Button 1 is released
+            buttonPressed           = False
             inputRelease            = int(time() * 1000)
             inputDuration           = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
-                userInput = INPUT_TYPE_SHORT        # Short press
+                userInput           = INPUT_TYPE_SHORT          # Short press
             elif inputDuration <= powerInterval:
-                userInput = INPUT_TYPE_LONG         # Long press
+                userInput           = INPUT_TYPE_LONG           # Long press
             else:
                 Set_Display("  Shutting down ", "    Goodbye     ")
-                userInput = INPUT_TYPE_POWER        # Shutdown press
+                userInput           = INPUT_TYPE_POWER          # Shutdown press
 
 
 def Play_Intro():
+    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Starting")
     setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     Set_Display("   Dispenser    ", "      2000      ")
     sleep(INTRO_DURATION)
 
+
+# Append a line to action.log
+def logWrite(logLine):
+    logFile = open("action.log", "a")
+    logFile.write(logLine + "\n")
+    logFile.close()
 
 Start()
 
