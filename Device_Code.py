@@ -233,20 +233,20 @@ def Check_Input():
 
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 is being pressed
         if not buttonDown:
-            buttonDown           = True
+            buttonDown              = True
             inputStart              = int(time() * 1000)
-        else:                                                   # Button 1 is not being pressed
-            if buttonDown:                                       # Button 1 is released
-                buttonDown           = False
-                inputRelease            = int(time() * 1000)
-                inputDuration           = (inputRelease - inputStart)
-                if inputDuration <= inputInterval:
-                    userInput           = INPUT_TYPE_SHORT          # Short press
-                elif inputDuration <= powerInterval:
-                    userInput           = INPUT_TYPE_LONG           # Long press
-                else:
-                    Set_Display("  Shutting down ", "    Goodbye     ")
-                    userInput           = INPUT_TYPE_POWER          # Shutdown press
+    else:
+        if buttonDown:                                        # Button 1 is released
+            buttonDown              = False
+            inputRelease            = int(time() * 1000)
+            inputDuration           = (inputRelease - inputStart)
+            if inputDuration <= inputInterval:
+                userInput           = INPUT_TYPE_SHORT          # Short press
+            elif inputDuration <= powerInterval:
+                userInput           = INPUT_TYPE_LONG           # Long press
+            else:
+                Set_Display("  Shutting down ", "    Goodbye     ")
+                userInput           = INPUT_TYPE_POWER          # Shutdown press
 
 
 def Play_Intro():
