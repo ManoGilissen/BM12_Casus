@@ -1,5 +1,6 @@
 from grove_rgb_lcd import *
 from time import *
+from datetime import *
 
 import grovepi
 import random
@@ -42,13 +43,6 @@ COLOR_WHITE                         = [255, 255, 255]
 COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
-DISPENSE_TIMESTAMPS                 = [
-    1485344940,
-    1484850000,
-    1484854000,
-    1484858000
-]
-
 # Input and time variables
 buttonDown                          = False
 inputStart                          = 0         # Timestamp start button press
@@ -56,7 +50,9 @@ inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
 powerInterval                       = 10000     # Shut down press threshold
 dispenseTime                        = 0
+nextDispense                        = -1
 remainingTime                       = ""
+importedTimes                       = []
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -73,7 +69,7 @@ patientName 	                    = "Anne Beertens"
 def Start():
     Set_Hardware()
     Set_Actuators()
-    Check_Timestamps()
+    Get_Timestamps()
     Play_Intro()
 
 
@@ -101,11 +97,11 @@ def Dispense():
     global ledColor
     global buzzerTone
     global dispenseTime
-
-    DISPENSE_TIMESTAMPS.pop(0)
+    global nextDispense
 
     Set_State(STATE_DISPENSING)
 
+    nextDispense                    = -1
     rgbColor                        = COLOR_BLUE
     ledColor                        = COLOR_BLUE
     buzzerTone                      = TONE_DISPENSING
@@ -133,6 +129,9 @@ def Inactive():
 
 def Active():
     global remainingTime
+
+    if nextDispense == -1:
+        Set_Next_Dispense()
 
     if userInput == INPUT_TYPE_SHORT or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
@@ -198,6 +197,43 @@ def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
 
 
+def Set_Next_Dispense():
+    global nextDispense
+
+    currentDayTime = datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60
+
+    for time in importedTimes:
+        if time > currentDayTime:
+            nextDispense = time
+
+    if nextDispense == -1:
+        nextDispense = min(importedTimes)
+
+    print("Next dispense time (seconds in day): " + str(nextDispense))
+
+
+def Get_Timestamps():
+    global importedTimes
+
+    importedTimes = []
+
+    # Open and read data file
+    importFile = open("time.txt", "r")
+    importFile = importFile.read().splitlines()
+
+    # Check if times are in a valid format, add to importTimes
+    for time in importFile:
+        HH = time[0] + time[1]
+        MM = time[3] + time[4]
+        if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
+            try:
+                importedTimes.append(int(HH) * 3600 + int(MM) * 60)
+            except ValueError:
+                print("Error: Tijd conversie naar unix timestamp")
+        else:
+            print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
+
+
 def Check_Active():
     global systemState
     global ledColor
@@ -208,16 +244,6 @@ def Check_Active():
         systemState     = STATE_ACTIVE  if systemState == STATE_INACTIVE else STATE_INACTIVE
         ledColor        = COLOR_RED     if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor        = COLOR_DIMMED  if systemState == STATE_INACTIVE else COLOR_WHITE
-        Set_Actuators()
-
-
-def Check_Timestamps():
-    global DISPENSE_TIMESTAMPS
-
-    # Remove expired timestamps
-    for timestamp in DISPENSE_TIMESTAMPS:
-        if timestamp < int(time()):
-            DISPENSE_TIMESTAMPS.remove(timestamp)
 
 
 def Check_Input():
@@ -266,34 +292,3 @@ Start()
 
 while True:
     Update()
-
-'''
-
-    importedTimes = ['Should', 'be', 'empty']
-
-
-    def Get_Dispense_Times():
-        global importedTimes
-
-        # Empty list
-        importedTimes = []
-
-        # Open the text file
-        importFile = open("time.txt", "r")
-        # Remove linebreaks ('\n')
-        importFile = importFile.read().splitlines()
-        # Check if times are in a valid format, add to importTimes
-        for time in importFile:
-            HH = time[0] + time[1]
-            MM = time[3] + time[4]
-            if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
-                importedTimes.append(time)
-            else:
-                print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
-
-
-    Get_Dispense_Times()
-
-    print(importedTimes)
-
-'''
