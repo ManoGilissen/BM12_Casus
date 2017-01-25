@@ -49,13 +49,14 @@ DISPENSE_TIMESTAMPS                 = [
     1484858000
 ]
 
-# Button input variables
+# Input and time variables
 buttonDown                          = False
-dispenseTime                        = 0
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
 powerInterval                       = 10000     # Shut down press threshold
+dispenseTime                        = 0
+remainingTime                       = ""
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -134,7 +135,8 @@ def Active():
     if userInput == INPUT_TYPE_SHORT or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
     else:
-        Set_Display("Volgende inname:", Get_Remaining())
+        if (remainingTime != Get_Remaining()):
+            Set_Display("Volgende inname:", Get_Remaining())
 
 
 def Dispensed():
