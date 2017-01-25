@@ -14,14 +14,15 @@ STATE_NOTIFYING                     = 5
 
 # Input identifiers
 INPUT_NONE                          = 0
-INPUT_TYPE_SHORT                        = 1     # Button 1 short press
-INPUT_TYPE_LONG                        = 2     # Button 1 long press
-# INPUT_TYPE_3                        = 3     # Power button press
+INPUT_TYPE_SHORT                    = 1     # Button 1 short press
+INPUT_TYPE_LONG                     = 2     # Button 1 long press
+INPUT_TYPE_POWER                    = 3
 
 # Event durations
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
+ALARM_DURATION                      = 60
 
 # Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
@@ -50,11 +51,12 @@ DISPENSE_TIMESTAMPS                 = [
 ]
 
 # Button input variables
-button1Down                         = False
-# button2Down                         = False
+buttonDown                          = False
+dispenseTime                        = 0
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
+powerInterval                       = 10000     # Shut down press threshold
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -64,9 +66,9 @@ rgbColor                            = COLOR_DIMMED
 buzzerTone                          = TONE_SILENCE
 
 # Mail variables
-senderMail	= "dspnzr2000@gmail.com"
-recipientMail	= "svenheinen93@gmail.com"	# Fixed variables for testing
-patientName 	= "Anne Beertens"
+senderMail	                        = "dspnzr2000@gmail.com"
+recipientMail	                    = "svenheinen93@gmail.com"	    # Constant for testing
+patientName 	                    = "Anne Beertens"
 
 def Start():
     Set_Hardware()
@@ -86,7 +88,8 @@ def Update():
     elif systemState == STATE_DISPENSED:
         Dispensed()
     elif systemState == STATE_ALARMING:
-        Alarming()
+        Alarm()
+        Dispensed()
     elif systemState == STATE_NOTIFYING:
         Notifying()
 
@@ -98,6 +101,7 @@ def Dispense():
     global rgbColor
     global ledColor
     global buzzerTone
+    global dispenseTime
 
     DISPENSE_TIMESTAMPS.pop(0)
 
@@ -111,7 +115,8 @@ def Dispense():
 
     sleep(DISPENSE_DURATION)
 
-    systemState                     = STATE_DISPENSED
+    dispenseTime                    = int(time())
+    systemState                     = STATE_ALARMING
     rgbColor                        = COLOR_WHITE
     ledColor                        = COLOR_ORANGE
     buzzerTone                      = TONE_ALARMING
@@ -122,6 +127,9 @@ def Dispense():
 
 def Inactive():
     global systemState
+
+    if userInput == INPUT_TYPE_SHORT:
+        systemState = STATE_ACTIVE
 
 
 def Active():
@@ -147,16 +155,13 @@ def Dispensed():
         # systemState = STATE_NOTIFYING
 
 
-def Alarming():
+def Alarm():
     global systemState
-    Set_Display("     ALARM      ", " ")
 
-    setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-   
-    '''
-    for i in range(0, 255):
-        sleep(0.1)
-    '''
+    if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
+        systemState = STATE_DISPENSED
+    else:
+        setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
 def Notifying():
@@ -167,12 +172,7 @@ def Notifying():
 def Get_Remaining():
     minutes, seconds = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
     hours,   minutes = divmod(minutes, 60)
-    return("    " + "%02d:%02d:%02d" % (hours, minutes, seconds) + "    ")
-
-
-def Set_Display(displayText):
-    if len(displayText) <= MAX_DISPLAY_CHARS:
-        Set_Display(displayText[:MAX_LINE_CHARS], displayText[MAX_LINE_CHARS:])
+    return("    " + "%02d:%02d" % (hours, minutes) + "    ")
 
 
 def Set_Display(textTop, textBottom):
@@ -183,14 +183,13 @@ def Set_Display(textTop, textBottom):
 def Set_Actuators():
     global systemState
 
-    # setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
+    setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
 
 
 def Set_Hardware():
     grovepi.pinMode(BUTTON_1_PIN, "INPUT")
-    #grovepi.pinMode(BUTTON_2_PIN, "INPUT")
 
 
 def Check_Active():
@@ -199,11 +198,11 @@ def Check_Active():
     global rgbColor
 
     # Check and process power button input
-    '''if userInput == INPUT_TYPE_3:
+    if userInput == INPUT_TYPE_POWER:
         systemState     = STATE_ACTIVE  if systemState == STATE_INACTIVE else STATE_INACTIVE
         ledColor        = COLOR_RED     if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor        = COLOR_DIMMED  if systemState == STATE_INACTIVE else COLOR_WHITE
-        Set_Actuators()'''
+        Set_Actuators()
 
 
 def Check_Timestamps():
@@ -217,7 +216,6 @@ def Check_Timestamps():
 
 def Check_Input():
     global button1Pressed
-    # global button2Pressed
     global inputStart
     global inputRelease
     global inputInterval
@@ -237,24 +235,17 @@ def Check_Input():
             inputRelease            = int(time() * 1000)
             inputDuration           = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
-                Set_Display("Short press")
-                userInput = INPUT_TYPE_SHORT            # Button 1 short press
+                userInput = INPUT_TYPE_SHORT        # Short press
+            elif inputDuration <= powerInterval:
+                userInput = INPUT_TYPE_LONG         # Long press
             else:
-                Set_Display("Long press")
-                userInput = INPUT_TYPE_LONG            # Button 1 long press
-
-    '''if grovepi.digitalRead(BUTTON_2_PIN) == 1:      # Button 2 is being pressed
-        if not button2Pressed:
-            button2Pressed          = True
-    else:                                           # Button 2 is not being pressed
-        if button2Pressed:                          # Button 2 is released
-            button2Pressed          = False
-            userInput               = INPUT_TYPE_3  # Button 2 pressed'''
+                Set_Display("  Shutting down ", "    Goodbye     ")
+                userInput = INPUT_TYPE_POWER        # Shutdown press
 
 
 def Play_Intro():
     setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-    Set_Display("     DSPNZR     ", "      2000      ")
+    Set_Display("   Dispenser    ", "      2000      ")
     sleep(INTRO_DURATION)
 
 
