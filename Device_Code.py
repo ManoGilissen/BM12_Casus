@@ -43,7 +43,7 @@ COLOR_ORANGE                        = [255, 165, 000]
 COLOR_DIMMED                        = [100, 100, 100]
 
 DISPENSE_TIMESTAMPS                 = [
-    1485341040,
+    1485344940,
     1484850000,
     1484854000,
     1484858000
@@ -218,7 +218,7 @@ def Check_Timestamps():
 
 
 def Check_Input():
-    global buttonPressed
+    global buttonDown
     global inputStart
     global inputRelease
     global inputInterval
@@ -229,12 +229,12 @@ def Check_Input():
     userInput = INPUT_NONE
 
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 is being pressed
-        if not buttonPressed:
-            buttonPressed           = True
+        if not buttonDown:
+            buttonDown           = True
             inputStart              = int(time() * 1000)
         else:                                                   # Button 1 is not being pressed
-            if buttonPressed:                                       # Button 1 is released
-                buttonPressed           = False
+            if buttonDown:                                       # Button 1 is released
+                buttonDown           = False
                 inputRelease            = int(time() * 1000)
                 inputDuration           = (inputRelease - inputStart)
                 if inputDuration <= inputInterval:
