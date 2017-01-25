@@ -169,7 +169,7 @@ def Notifying():
 
 # Returns readable time until next dispense
 def Get_Remaining():
-    minutes, seconds = divmod(DISPENSE_TIMESTAMPS[0] - int(time()), 60)
+    minutes, seconds = divmod(nextDispense - 120, 60)
     hours,   minutes = divmod(minutes, 60)
     return("    " + "%02d:%02d" % (hours, minutes) + "    ")
 
