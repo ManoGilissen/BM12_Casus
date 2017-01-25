@@ -5,12 +5,12 @@ import grovepi
 import random
 
 # System states
-STATE_INACTIVE                      = 0
-STATE_ACTIVE                        = 1
-STATE_DISPENSING                    = 2
-STATE_DISPENSED                     = 3
-STATE_ALARMING                      = 4
-STATE_NOTIFYING                     = 5
+STATE_INACTIVE                      = "State inactive"
+STATE_ACTIVE                        = "State active"
+STATE_DISPENSING                    = "State dispensing"
+STATE_DISPENSED                     = "State dispensed"
+STATE_ALARMING                      = "State alarming"
+STATE_NOTIFYING                     = "State notifying"
 
 # Input identifiers
 INPUT_NONE                          = 0
@@ -233,17 +233,17 @@ def Check_Input():
             buttonPressed           = True
             inputStart              = int(time() * 1000)
         else:                                                   # Button 1 is not being pressed
-        if buttonPressed:                                       # Button 1 is released
-            buttonPressed           = False
-            inputRelease            = int(time() * 1000)
-            inputDuration           = (inputRelease - inputStart)
-            if inputDuration <= inputInterval:
-                userInput           = INPUT_TYPE_SHORT          # Short press
-            elif inputDuration <= powerInterval:
-                userInput           = INPUT_TYPE_LONG           # Long press
-            else:
-                Set_Display("  Shutting down ", "    Goodbye     ")
-                userInput           = INPUT_TYPE_POWER          # Shutdown press
+            if buttonPressed:                                       # Button 1 is released
+                buttonPressed           = False
+                inputRelease            = int(time() * 1000)
+                inputDuration           = (inputRelease - inputStart)
+                if inputDuration <= inputInterval:
+                    userInput           = INPUT_TYPE_SHORT          # Short press
+                elif inputDuration <= powerInterval:
+                    userInput           = INPUT_TYPE_LONG           # Long press
+                else:
+                    Set_Display("  Shutting down ", "    Goodbye     ")
+                    userInput           = INPUT_TYPE_POWER          # Shutdown press
 
 
 def Play_Intro():
