@@ -14,8 +14,8 @@ STATE_NOTIFYING                     = 5
 
 # Input identifiers
 INPUT_NONE                          = 0
-INPUT_TYPE_SHORT                        = 1     # Button 1 short press
-INPUT_TYPE_LONG                        = 2     # Button 1 long press
+INPUT_TYPE_SHORT                    = 1     # Button 1 short press
+INPUT_TYPE_LONG                     = 2     # Button 1 long press
 # INPUT_TYPE_3                        = 3     # Power button press
 
 # Event durations
@@ -52,7 +52,7 @@ DISPENSE_TIMESTAMPS                 = [
 # Button input variables
 button1Down                         = False
 # button2Down                         = False
-button1Pressed 				= False
+button1Pressed 			        	= False
 inputStart                          = 0         # Timestamp start button press
 inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
@@ -259,7 +259,8 @@ def Play_Intro():
     Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
-def logWrite(logLine): # append a line to action.log
+# Append a line to action.log
+def logWrite(logLine):
 	logFile = open("action.log", "a")
 	logFile.write(logLine + "\n")
 	logFile.close
