@@ -132,10 +132,13 @@ def Inactive():
 
 
 def Active():
+    global remainingTime
+
     if userInput == INPUT_TYPE_SHORT or DISPENSE_TIMESTAMPS[0] < int(time()):
         Dispense()
     else:
         if (remainingTime != Get_Remaining()):
+            remainingTime = Get_Remaining()
             Set_Display("Volgende inname:", Get_Remaining())
 
 
