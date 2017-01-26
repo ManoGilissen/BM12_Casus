@@ -262,6 +262,8 @@ def Check_Input():
 
     userInput = INPUT_NONE
 
+    print(time())
+
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 wordt ingedrukt
         if not buttonDown:
             buttonDown = True
@@ -269,7 +271,6 @@ def Check_Input():
     else:
         if buttonDown:                                        # Button 1 wordt losgelaten
             buttonDown = False
-            print(time())
             inputRelease = int(time() * 1000)
             inputDuration = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
