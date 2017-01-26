@@ -1,5 +1,5 @@
 from grove_rgb_lcd import *
-import time
+from time import time strftime localtime
 import datetime
 
 import grovepi
