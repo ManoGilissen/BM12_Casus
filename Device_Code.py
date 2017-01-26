@@ -262,7 +262,7 @@ def Check_Input():
 
     userInput = INPUT_NONE
 
-    print(time())
+    print(time.time())
 
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 wordt ingedrukt
         if not buttonDown:
