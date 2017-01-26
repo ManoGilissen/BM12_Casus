@@ -1,4 +1,4 @@
-#from grove_rgb_lcd import *
+from grove_rgb_lcd import *
 from time import time, strftime, localtime, sleep
 from datetime import datetime
 tempTimes = []
@@ -14,14 +14,13 @@ def timeForTakeOut():
     global nextDispense
     global dispensed
     global dispenseTimeStamps
-    tempTimeStamps = []
 
     currentTime = strftime("%H:%M", localtime())
     nextDispense = dispenseTimeStamps[0]
 
     if currentTime == nextDispense and not dispensed:
         print("Je pillen liggen klaar!")
-        # dispense de blisters
+                # dispense de blisters
         dispensed = True
 
     elif currentTime != nextDispense and not dispensed:
@@ -30,9 +29,7 @@ def timeForTakeOut():
 
     elif dispensed:
         print('Je pillen liggen er nog!')
-        # alarm, notificaties enz.
         # niet vergeten dispensed naar False te zetten als weggepakt/opgelost
-        # Daarna dispenseTimeStamps.append(dispenseTimeStamps[0], [0] verwijderen
 
 def Get_Dispense_Times():
     global importedTimes

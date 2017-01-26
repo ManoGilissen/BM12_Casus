@@ -66,10 +66,12 @@ senderMail	                        = "dspnzr2000@gmail.com"
 recipientMail	                    = "svenheinen93@gmail.com"	    # Constant for testing
 patientName 	                    = "Anne Beertens"
 
+dispenseTimeStamps = []
+
 def Start():
     Set_Hardware()
     Set_Actuators()
-    Get_Timestamps()
+    Get_Dispense_Times()
     Play_Intro()
 
 
@@ -294,6 +296,62 @@ def logWrite(logLine):
     logFile = open("action.log", "a")
     logFile.write(logLine + "\n")
     logFile.close()
+
+def Get_Dispense_Times():
+    global dispenseTimeStamps
+    importedTimes = []
+
+    # Open the text file
+    importFile = open("time.txt", "r")
+    # Remove linebreaks ('\n')
+    importFile = importFile.read().splitlines()
+    # Check if times are in a valid format, add to importTimes
+    for time in importFile:
+        HH = time[0] + time[1]
+        MM = time[3] + time[4]
+        if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
+            importedTimes.append(time)
+        else:
+            print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
+    # Sort list
+    importedTimes.sort()
+
+    # Check if time < now
+    now = strftime('%H:%M', localtime())
+    print('Het is nu: ', now)
+    for sortedTime in importedTimes:
+        if sortedTime <= now:
+            tempTimes.append(sortedTime)
+        else:
+            dispenseTimeStamps.append(sortedTime)
+
+    # Append earlier times to the final list
+    for earlyTime in tempTimes:
+        dispenseTimeStamps.append(earlyTime)
+
+def timeForTakeOut():
+    global currentTime
+    global nextDispense
+    global dispensed
+    global dispenseTimeStamps
+
+    currentTime = strftime("%H:%M", localtime())
+    nextDispense = dispenseTimeStamps[0]
+
+    if currentTime == nextDispense and not dispensed:
+        print("Je pillen liggen klaar!")
+                # dispense de blisters
+        dispensed = True
+        Set_State(STATE_ALARMING)
+
+    elif currentTime != nextDispense and not dispensed:
+        print("Blijf van die pillen af")
+        # niks doen verder
+
+    elif dispensed:
+        print('Je pillen liggen klaar!')
+        # niet vergeten dispensed naar False te zetten als weggepakt/opgelost
+
 
 Start()
 
