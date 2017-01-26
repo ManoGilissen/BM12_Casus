@@ -217,7 +217,7 @@ def Set_Next_Dispense():
         nextDispense = min(dispenseTimeStamps)
 
     print("Next dispense time (seconds in day): " + str(nextDispense))
-    print(currentDayTime, nextDispense, time, dispenseTimeStamps)
+    print(currentDayTime, nextDispense, dispenseTimeStamps)
 
 
 def Get_Timestamps():
