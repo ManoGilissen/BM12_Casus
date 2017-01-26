@@ -214,10 +214,10 @@ def Set_Next_Dispense():
             nextDispense = time
 
     if nextDispense == -1:
-        nextDispense = min(importedTimes)
+        nextDispense = min(dispenseTimeStamps)
 
     print("Next dispense time (seconds in day): " + str(nextDispense))
-    print(currentDayTime, nextDispense, time, importedTimes)
+    print(currentDayTime, nextDispense, time, dispenseTimeStamps)
 
 
 def Get_Timestamps():
