@@ -77,7 +77,7 @@ def Update():
     Check_Input()
     Check_Active()
 
-    if   systemState == STATE_INACTIVE:
+    if systemState == STATE_INACTIVE:
         Inactive()
     elif systemState == STATE_ACTIVE:
         Active()
@@ -120,7 +120,7 @@ def Dispense():
 
     Set_Actuators()
     Set_Display("  Uw medicatie  ", "  ligt gereed   ")
-    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
+
 
 def Inactive():
     if userInput == INPUT_TYPE_SHORT:
@@ -133,7 +133,9 @@ def Active():
     if nextDispense == -1:
         Set_Next_Dispense()
 
-    if userInput == INPUT_TYPE_SHORT or nextDispense <= (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60):
+    print("NextDispense: ", nextDispense)
+    print("Time Now: ", (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60))
+    if userInput == INPUT_TYPE_LONG or nextDispense <= (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60):
         Dispense()
     elif (remainingTime != Get_Remaining()):
             remainingTime = Get_Remaining()
@@ -157,6 +159,7 @@ def Dispensed():
 
 
 def Alarm():
+    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
     if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
         Set_State(STATE_DISPENSED)
     else:
@@ -167,13 +170,14 @@ def Notifying():
     global systemState
 
 
-# Returns readable time until next dispense
+# Geeft de tijd aan waarop de volgende inname plaatsvindt.
 def Get_Remaining():
-    minutes, seconds = divmod(nextDispense - 120, 60)
+    minutes, seconds = divmod(nextDispense - 120, 60) #Waarom -2 minuten???
     hours,   minutes = divmod(minutes, 60)
     return("    " + "%02d:%02d" % (hours, minutes) + "    ")
 
 
+# Verandert de state en schrijft dit in het logfile
 def Set_State(newState):
     global systemState
 
@@ -181,21 +185,23 @@ def Set_State(newState):
     logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
 
 
+# Zet de doorgegeven tekst op het LCD-display
 def Set_Display(textTop, textBottom):
     setText(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
     print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
-
+# ?
 def Set_Actuators():
     setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
 
 
+# H
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
 
-
+#
 def Set_Next_Dispense():
     global nextDispense
 
