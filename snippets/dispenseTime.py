@@ -1,4 +1,7 @@
+from time import strftime, localtime
 importedTimes = ['Should', 'be', 'empty']
+tempTimes = []
+finalTimes = []
 
 def Get_Dispense_Times():
     global importedTimes
@@ -19,6 +22,25 @@ def Get_Dispense_Times():
         else:
             print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
 
+    # Sort list
+    importedTimes.sort()
+
+    # Count number of iterations
+    counter = 0
+
+    # Check if time < now
+    now = strftime('%H:%M', localtime())
+    print('Het is nu: ', now)
+    for sortedTime in importedTimes:
+        if sortedTime <= now:
+            tempTimes.append(sortedTime)
+        else:
+            finalTimes.append(sortedTime)
+
+    # Append earlier times to the final list
+    for earlyTime in tempTimes:
+        finalTimes.append(earlyTime)
+
 Get_Dispense_Times()
 
-print(importedTimes)
+print(finalTimes)
