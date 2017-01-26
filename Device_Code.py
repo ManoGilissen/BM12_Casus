@@ -215,6 +215,7 @@ def Set_Next_Dispense():
         nextDispense = min(importedTimes)
 
     print("Next dispense time (seconds in day): " + str(nextDispense))
+    print(currentDayTime, nextDispense, time, importedTimes)
 
 
 def Get_Timestamps():
@@ -265,7 +266,7 @@ def Check_Input():
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 is being pressed
         if not buttonDown:
             buttonDown              = True
-            inputStart              = int(time() * 1000)
+            print(currentDayTime, nextDispense, time, importedTimes)
     else:
         if buttonDown:                                        # Button 1 is released
             buttonDown              = False
