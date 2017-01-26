@@ -265,7 +265,6 @@ def Check_Input():
     if grovepi.digitalRead(BUTTON_PIN) == 1:                    # Button 1 is being pressed
         if not buttonDown:
             buttonDown              = True
-            print(currentDayTime, nextDispense, time, importedTimes)
     else:
         if buttonDown:                                        # Button 1 is released
             buttonDown              = False
