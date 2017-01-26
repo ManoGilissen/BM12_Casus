@@ -238,6 +238,7 @@ def Get_Timestamps():
                 print("Error: Tijd conversie naar unix timestamp")
         else:
             print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
+    print(currentDayTime, nextDispense, time, importedTimes)
 
 
 def Check_Active():
