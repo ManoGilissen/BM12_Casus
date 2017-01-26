@@ -1,7 +1,7 @@
 from time import strftime, localtime
 importedTimes = ['Should', 'be', 'empty']
 tempTimes = []
-finalTimes = []
+dispensedTimes = []
 
 def Get_Dispense_Times():
     global importedTimes
@@ -32,12 +32,12 @@ def Get_Dispense_Times():
         if sortedTime <= now:
             tempTimes.append(sortedTime)
         else:
-            finalTimes.append(sortedTime)
+            dispensedTimes.append(sortedTime)
 
     # Append earlier times to the final list
     for earlyTime in tempTimes:
-        finalTimes.append(earlyTime)
+        dispensedTimes.append(earlyTime)
 
 Get_Dispense_Times()
 
-print(finalTimes)
+print(dispensedTimes)
