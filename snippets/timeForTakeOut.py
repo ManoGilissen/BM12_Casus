@@ -4,7 +4,7 @@ import time
 # Format is HH:MM (HH 00-23, MM 00-59)
 dispenseTimeStamps = [
     "09:00",
-    "13:15",
+    "09:30",
     "17:30",
     "21:45"
 ]
