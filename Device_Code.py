@@ -269,6 +269,7 @@ def Check_Input():
     else:
         if buttonDown:                                        # Button 1 wordt losgelaten
             buttonDown = False
+            print(time())
             inputRelease = int(time() * 1000)
             inputDuration = (inputRelease - inputStart)
             if inputDuration <= inputInterval:
