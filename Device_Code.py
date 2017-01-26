@@ -300,6 +300,7 @@ def logWrite(logLine):
 def Get_Dispense_Times():
     global dispenseTimeStamps
     importedTimes = []
+    tempTimes = []
 
     # Open the text file
     importFile = open("time.txt", "r")
