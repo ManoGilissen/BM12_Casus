@@ -25,9 +25,6 @@ def Get_Dispense_Times():
     # Sort list
     importedTimes.sort()
 
-    # Count number of iterations
-    counter = 0
-
     # Check if time < now
     now = strftime('%H:%M', localtime())
     print('Het is nu: ', now)
