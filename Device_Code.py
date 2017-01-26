@@ -1,6 +1,6 @@
 from grove_rgb_lcd import *
-from time import *
-from datetime import *
+import time
+import datetime
 
 import grovepi
 import random
