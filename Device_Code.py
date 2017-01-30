@@ -299,10 +299,10 @@ def Get_Dispense_Times():
             if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
                 importedTimes.append(time)
             else:
-                logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
+                log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
                 print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
         else:
-            logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
+            log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
             print("Error: Tijd voldoet niet aan eisen (HH:MM)")
 
 
