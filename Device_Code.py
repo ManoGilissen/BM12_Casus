@@ -132,15 +132,8 @@ def Inactive():
 def Active():
     global remainingTime
 
-    # if nextDispense == -1:
-    #    Set_Next_Dispense()
-
-    # print("NextDispense: ", nextDispense)
-    print("Time Now: ", (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60))
-    if userInput == INPUT_TYPE_LONG:  # or nextDispense <= (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60):
+    if userInput == INPUT_TYPE_LONG or strftime("%H:%M", localtime()) == dispenseTimeStamps[0]:
         Dispense()
-    else:
-        timeForTakeOut()
 
     '''
     elif (remainingTime != Get_Remaining()):
@@ -208,23 +201,6 @@ def Set_Actuators():
 # H
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
-
-
-#
-def Set_Next_Dispense():
-    global nextDispense
-
-    currentDayTime = datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60
-
-    for time in importedTimes:
-        if time > currentDayTime:
-            nextDispense = time
-
-    if nextDispense == -1:
-        nextDispense = min(dispenseTimeStamps)
-
-    print("Next dispense time (seconds in day): " + str(nextDispense))
-    print(currentDayTime, nextDispense, dispenseTimeStamps)
 
 
 def Get_Timestamps():
@@ -338,34 +314,6 @@ def Get_Dispense_Times():
     # Append earlier times to the final list
     for earlyTime in tempTimes:
         dispenseTimeStamps.append(earlyTime)
-
-
-def timeForTakeOut():
-    global currentTime
-    global nextDispense
-    global dispenseTimeStamps
-
-    currentTime = strftime("%H:%M", localtime())
-    nextDispense = dispenseTimeStamps[0]
-
-    if systemState == STATE_DISPENSED or systemState == STATE_ALARMING or systemState == STATE_NOTIFYING:
-        dispensed = True
-    else:
-        dispensed = False
-
-    if currentTime == nextDispense and not dispensed:
-        print("Je pillen liggen klaar!")
-        # dispense de blisters
-        Set_State(STATE_DISPENSED)
-
-    elif currentTime != nextDispense and not dispensed:
-        print("Blijf van die pillen af")
-        # niks doen verder
-
-    elif dispensed:
-        print('Je pillen liggen klaar!')
-        Set_State(STATE_ALARMING)
-        # niet vergeten dispensed naar False te zetten als weggepakt/opgelost
 
 
 Start()
