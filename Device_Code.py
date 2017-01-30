@@ -66,7 +66,7 @@ senderMail	                        = "dspnzr2000@gmail.com"
 recipientMail	                    = "svenheinen93@gmail.com"	    # Constant for testing
 patientName 	                    = "Anne Beertens"
 
-dispenseTimeStamps = []
+dispenseTimeStamps                  = []
 
 def Start():
     Set_Hardware()
@@ -159,7 +159,7 @@ def Dispensed():
 
 
 def Alarm():
-    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
+    Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
     if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
         Set_State(STATE_DISPENSED)
     else:
@@ -172,7 +172,7 @@ def Notifying():
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
 def Get_Remaining():
-    minutes, seconds = divmod(nextDispense - 120, 60)  # Waarom -2 minuten???
+    minutes, seconds = divmod(nextDispense - 120, 60)
     hours, minutes = divmod(minutes, 60)
     return ("    " + "%02d:%02d" % (hours, minutes) + "    ")
 
@@ -182,7 +182,7 @@ def Set_State(newState):
     global systemState
 
     systemState = newState
-    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
+    Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
 
 
 # Zet de doorgegeven tekst op het LCD-display
@@ -191,14 +191,14 @@ def Set_Display(textTop, textBottom):
     print(textTop[:MAX_LINE_CHARS] + "\n" + textBottom[:MAX_LINE_CHARS])
 
 
-# ?
+# Set all hardware actuators to current state
 def Set_Actuators():
     setRGB(rgbColor[0], rgbColor[1], rgbColor[2])
     # setLED(ledColor[0], ledColor[0], ledColor[0])
     # setBuzzer(buzzerTone)
 
 
-# H
+# Set hardware input and output pin modes
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
 
@@ -269,14 +269,14 @@ def Check_Input():
 
 
 def Play_Intro():
-    logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Starting")
+    Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Starting")
     setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     Set_Display("     DSPNZR     ", "      2000      ")
     sleep(INTRO_DURATION)
 
 
 # Append a line to action.log
-def logWrite(logLine):
+def Log_Write(logLine):
     logFile = open("action.log", "a")
     logFile.write(logLine + "\n")
     logFile.close()
