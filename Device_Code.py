@@ -293,14 +293,20 @@ def Get_Dispense_Times():
     importFile = importFile.read().splitlines()
     # Check if times are in a valid format, add to importTimes
     for time in importFile:
-        HH = time[0] + time[1]
-        MM = time[3] + time[4]
-        if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
-            importedTimes.append(time)
+        if len(time) == 5:
+            HH = time[0] + time[1]
+            MM = time[3] + time[4]
+            if 00 <= int(HH) < 24 and 00 <= int(MM) < 60 and time[2] == ":" and len(time) == 5:
+                importedTimes.append(time)
+            else:
+                logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
+                print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
         else:
             logWrite(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
-            print("Error: Tijd", time, "voldoet niet aan eisen (HH:MM)")
-    # Sort list
+            print("Error: Tijd voldoet niet aan eisen (HH:MM)")
+
+
+# Sort list
     importedTimes.sort()
 
     # Check if time < now
