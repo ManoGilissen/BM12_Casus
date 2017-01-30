@@ -25,7 +25,7 @@ INPUT_TYPE_POWER                    = 3     # Power button press
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
-ALARM_DURATION                      = 60
+ALARM_DURATION                      = 15
 
 # Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
@@ -238,22 +238,24 @@ def Notifying():
 
     print("Notify")
 
-    mailTime = strftime("%A, %d %b %Y om %H:%M:%S", mailTime)
+    if not mailSent:
+        mailTime = strftime("%A, %d %b %Y om %H:%M:%S", mailTime)
 
-    mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + mailTime + " gereageerd."
-    # Mail wordt omgezet naar MIMEtype text voor compabiliteit
-    mailMsg = MIMEText(mailPlaintext)
-    mailMsg['From'] = senderMail
-    mailMsg['To'] = recipientMail
-    mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
+        mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + mailTime + " gereageerd."
+        # Mail wordt omgezet naar MIMEtype text voor compabiliteit
+        mailMsg = MIMEText(mailPlaintext)
+        mailMsg['From'] = senderMail
+        mailMsg['To'] = recipientMail
+        mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
 
-    # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
-    #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
-    #mailProcess.communicate(mailMsg.as_string())
+        # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
+        #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+        #mailProcess.communicate(mailMsg.as_string())
+        print(mailPlaintext)
+        mailSent = True
 
-    mailSent = True
-    print(mailPlaintext)
-
+    elif mailSent:
+        print('Mail reeds verzonden.')
 
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
