@@ -207,7 +207,7 @@ def proxDetect():
         # Afstand bepalen m.b.v. sensor
         ultrasonicDetect = grovepi.ultrasonicRead(PROXIMITY_PIN)
         print(ultrasonicDetect)
-        if ultrasonicDetect > 20:
+        if ultrasonicDetect > 50:       # Onnauwkeurigheid sensor
             print('Gooi weg.')
             present = 2
         elif ultrasonicDetect > limit:
@@ -227,8 +227,10 @@ def proxDetect():
 def Notifying():
     global systemState
     print("Notify")
-    '''
-    mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + Time + " gereageerd."
+
+    mailTime = strftime("%A, %d %b %Y om %H:%M:%S", dispenseTime)
+
+    mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + mailTime + " gereageerd."
     # Mail wordt omgezet naar MIMEtype text voor compabiliteit
     mailMsg = MIMEText(mailPlaintext)
     mailMsg['From'] = senderMail
@@ -236,9 +238,11 @@ def Notifying():
     mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
 
     # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
-    mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
-    mailProcess.communicate(mailMsg.as_string())
-    '''
+    #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+    #mailProcess.communicate(mailMsg.as_string())
+
+    print(mailMsg)
+
 
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
