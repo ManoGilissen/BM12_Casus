@@ -189,10 +189,6 @@ def Alarm():
     else:
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-'''
-def Notifying():
-    global systemState
-    print("Notify")
 
 def proxDetect():
     global PROXIMITY_PIN
@@ -219,6 +215,10 @@ def proxDetect():
     except IOError:
         print("IOError")
         Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exeption")
+
+def Notifying():
+    global systemState
+    print("Notify")
     mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + Time + " gereageerd."
     # Mail wordt omgezet naar MIMEtype text voor compabiliteit
     mailMsg = MIMEText(mailPlaintext)
@@ -229,7 +229,7 @@ def proxDetect():
     # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
     mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
     mailProcess.communicate(mailMsg.as_string())
-'''
+
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
 def Get_Remaining():
