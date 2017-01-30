@@ -343,16 +343,19 @@ def Get_Dispense_Times():
 def timeForTakeOut():
     global currentTime
     global nextDispense
-    global dispensed
     global dispenseTimeStamps
 
     currentTime = strftime("%H:%M", localtime())
     nextDispense = dispenseTimeStamps[0]
 
+    if systemState == STATE_DISPENSED or systemState == STATE_ALARMING or systemState == STATE_NOTIFYING:
+        dispensed = True
+    else:
+        dispensed = False
+
     if currentTime == nextDispense and not dispensed:
         print("Je pillen liggen klaar!")
         # dispense de blisters
-        dispensed = True
         Set_State(STATE_DISPENSED)
 
     elif currentTime != nextDispense and not dispensed:
