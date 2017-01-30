@@ -141,9 +141,13 @@ def Inactive():
 
 def Active():
     global remainingTime
+    global dispenseTimeStamps
 
     if userInput == INPUT_TYPE_LONG or strftime("%H:%M", localtime()) == dispenseTimeStamps[0]:
         Dispense()
+        dispenseTimeStamps.append(dispenseTimeStamps[0])
+        del dispenseTimeStamps[0]
+
 
     '''
     elif (remainingTime != Get_Remaining()):
