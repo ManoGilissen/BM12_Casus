@@ -219,6 +219,7 @@ def proxDetect():
 def Notifying():
     global systemState
     print("Notify")
+    '''
     mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + Time + " gereageerd."
     # Mail wordt omgezet naar MIMEtype text voor compabiliteit
     mailMsg = MIMEText(mailPlaintext)
@@ -229,6 +230,7 @@ def Notifying():
     # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
     mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
     mailProcess.communicate(mailMsg.as_string())
+    '''
 
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
@@ -262,7 +264,7 @@ def Set_Actuators():
 # Set hardware input and output pin modes
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
-    # grovepi.pinMode(PROXIMITY_PIN, "INPUT")
+    grovepi.pinMode(PROXIMITY_PIN, "INPUT")
 
 
 def Get_Timestamps():
