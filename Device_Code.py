@@ -139,11 +139,14 @@ def Active():
     print("Time Now: ", (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60))
     if userInput == INPUT_TYPE_LONG:  # or nextDispense <= (datetime.now().second + datetime.now().minute * 60 + datetime.now().hour * 60):
         Dispense()
+    else:
+        timeForTakeOut()
+
     '''
     elif (remainingTime != Get_Remaining()):
             remainingTime = Get_Remaining()
             Set_Display("Volgende inname:", Get_Remaining())
-'''
+    '''
 
 
 def Dispensed():
