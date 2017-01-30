@@ -34,6 +34,7 @@ TONE_SILENCE                        = -1
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
 BUTTON_PIN                          = 3
+PROXIMITY_PIN = 2
 
 # Color constants
 COLOR_RED                           = [255, 100, 100]
@@ -53,6 +54,13 @@ dispenseTime                        = 0
 nextDispense                        = -1
 remainingTime                       = ""
 importedTimes                       = []
+
+# Alarm & Proxomity variabelen
+present = False
+herhaalalarm = 0
+MAX_ALARM = 2
+dispenseCheckTime = 0
+timeBetweenAlarm = 60
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -144,7 +152,22 @@ def Active():
 
 def Dispensed():
     global systemState
+    global present
+    global dispenseCheckTime
+    global timeBetweenAlarm
+    global herhaalalarm
+    global MAX_ALARM
     # Read ultra sonic sensor value
+    proxDetect()
+
+    if present:
+        # Medicatie is aanwezig
+        if dispenseCheckTime < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
+            Alarm()
+            herhaalalarm += 1
+        elif herhaalalarm >= MAX_ALARM:
+            systemState = STATE_NOTIFYING
+
 
     # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
     # Conclude blister taken by user
@@ -168,7 +191,33 @@ def Alarm():
 
 def Notifying():
     global systemState
+    print("Notify")
 
+def proxDetect():
+    global PROXIMITY_PIN
+    global present
+    global dispenseCheckTime
+
+    limit = 10          # Eventueel andere range: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
+
+    try:
+        # Afstand bepalen m.b.v. sensor
+        PROXIMITY_PIN = grovepi.ultrasonicRead(PROXIMITY_PIN)
+        print(PROXIMITY_PIN)
+        if PROXIMITY_PIN > limit:
+            print("Afstand is groter dan limit. Geen blister aanwezig.")
+            present = False
+        elif PROXIMITY_PIN <= limit:
+            print("Afstand is kleiner dan limit. Blister aanwezig.")
+            dispenseCheckTime = int(time())
+            present = True
+
+    except TypeError:
+        print("TypeError")
+        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exeption")
+    except IOError:
+        print("IOError")
+        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exeption")
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
 def Get_Remaining():
@@ -201,6 +250,7 @@ def Set_Actuators():
 # Set hardware input and output pin modes
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
+    # grovepi.pinMode(PROXIMITY_PIN, "INPUT")
 
 
 def Get_Timestamps():
@@ -247,8 +297,6 @@ def Check_Input():
     # Check and set current button input
 
     userInput = INPUT_NONE
-
-    print(time())
 
     if grovepi.digitalRead(BUTTON_PIN) == 1:  # Button 1 wordt ingedrukt
         if not buttonDown:
