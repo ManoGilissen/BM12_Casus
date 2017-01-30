@@ -25,7 +25,6 @@ INPUT_TYPE_POWER                    = 3     # Power button press
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
-ALARM_DURATION                      = 15
 
 # Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
@@ -61,6 +60,7 @@ importedTimes                       = []
 present = False
 herhaalalarm = 1
 MAX_ALARM = 3
+ALARM_DURATION = 15
 dispenseCheckTime = 0
 timeBetweenAlarm = 60
 
