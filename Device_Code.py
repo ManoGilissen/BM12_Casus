@@ -75,6 +75,7 @@ buzzerTone                          = TONE_SILENCE
 senderMail	                        = "dspnzr2000@gmail.com"
 recipientMail	                    = "svenheinen93@gmail.com"	    # Constant for testing
 patientName 	                    = "Anne Beertens"
+mailTime                            = 0
 
 dispenseTimeStamps                  = []
 
@@ -110,6 +111,7 @@ def Dispense():
     global buzzerTone
     global dispenseTime
     global nextDispense
+    global mailTime
 
     Set_State(STATE_DISPENSING)
 
@@ -126,6 +128,7 @@ def Dispense():
     Set_State(STATE_ALARMING)
 
     dispenseTime = int(time())
+    mailTime = localtime()
     rgbColor = COLOR_WHITE
     ledColor = COLOR_ORANGE
     buzzerTone = TONE_ALARMING
@@ -226,9 +229,11 @@ def proxDetect():
 
 def Notifying():
     global systemState
+    global mailTime
+
     print("Notify")
 
-    mailTime = strftime("%A, %d %b %Y om %H:%M:%S", dispenseTime)
+    mailTime = strftime("%A, %d %b %Y om %H:%M:%S", mailTime)
 
     mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + mailTime + " gereageerd."
     # Mail wordt omgezet naar MIMEtype text voor compabiliteit
@@ -241,7 +246,7 @@ def Notifying():
     #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
     #mailProcess.communicate(mailMsg.as_string())
 
-    print(mailMsg)
+    print(mailPlaintext)
 
 
 
