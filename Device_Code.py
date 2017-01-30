@@ -199,12 +199,12 @@ def proxDetect():
 
     try:
         # Afstand bepalen m.b.v. sensor
-        PROXIMITY_PIN = grovepi.ultrasonicRead(PROXIMITY_PIN)
-        print(PROXIMITY_PIN)
-        if PROXIMITY_PIN > limit:
+        ultrasonicDetect = grovepi.ultrasonicRead(PROXIMITY_PIN)
+        print(ultrasonicDetect)
+        if ultrasonicDetect > limit:
             print("Afstand is groter dan limit. Geen blister aanwezig.")
             present = False
-        elif PROXIMITY_PIN <= limit:
+        elif ultrasonicDetect <= limit:
             print("Afstand is kleiner dan limit. Blister aanwezig.")
             dispenseCheckTime = int(time())
             present = True
