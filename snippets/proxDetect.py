@@ -3,7 +3,7 @@
 import grovepi
 import time             # Alleen nodig voor de while loop als bewijs dat het werkt
 
-ultrasonicPort = 4      # Poortnummer voor de ultrasonic ranger (standaard D4)
+ultrasonicPort = 2      # Poortnummer voor de ultrasonic ranger (standaard D4)
 present = False         # Of een blister aanwezig is of niet
 
 def proxDetect():
