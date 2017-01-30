@@ -59,8 +59,8 @@ importedTimes                       = []
 
 # Alarm & Proxomity variabelen
 present = False
-herhaalalarm = 0
-MAX_ALARM = 2
+herhaalalarm = 1
+MAX_ALARM = 3
 dispenseCheckTime = 0
 timeBetweenAlarm = 60
 
@@ -160,11 +160,12 @@ def Dispensed():
     global herhaalalarm
     global MAX_ALARM
     # Read ultra sonic sensor value
+    dispenseCheckTime = int(time())
     proxDetect()
 
     if present:
         # Medicatie is aanwezig
-        if dispenseCheckTime < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
+        if dispenseTime + 60*herhaalalarm < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
             Alarm()
             herhaalalarm += 1
         elif herhaalalarm >= MAX_ALARM:
@@ -206,7 +207,6 @@ def proxDetect():
             present = False
         elif ultrasonicDetect <= limit:
             print("Afstand is kleiner dan limit. Blister aanwezig.")
-            dispenseCheckTime = int(time())
             present = True
 
     except TypeError:
