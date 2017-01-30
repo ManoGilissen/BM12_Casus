@@ -163,16 +163,15 @@ def Dispensed():
     dispenseCheckTime = int(time())
     proxDetect()
 
-    if present:
+    if present == 1:
         # Medicatie is aanwezig
         if dispenseTime + 60 * herhaalalarm < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
             systemState = STATE_ALARMING
             herhaalalarm += 1
         elif herhaalalarm >= MAX_ALARM:
             systemState = STATE_NOTIFYING
-    elif not present:
+    elif present == 0:
         systemState = STATE_ACTIVE
-
 
     # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
     # Conclude blister taken by user
@@ -204,12 +203,15 @@ def proxDetect():
         # Afstand bepalen m.b.v. sensor
         ultrasonicDetect = grovepi.ultrasonicRead(PROXIMITY_PIN)
         print(ultrasonicDetect)
-        if ultrasonicDetect > limit:
+        if ultrasonicDetect > 20:
+            print('Gooi weg.')
+            present = 2
+        elif ultrasonicDetect > limit:
             print("Afstand is groter dan limit. Geen blister aanwezig.")
-            present = False
+            present = 0
         elif ultrasonicDetect <= limit:
             print("Afstand is kleiner dan limit. Blister aanwezig.")
-            present = True
+            present = 1
 
     except TypeError:
         print("TypeError")
