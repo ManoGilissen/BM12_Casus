@@ -165,11 +165,13 @@ def Dispensed():
 
     if present:
         # Medicatie is aanwezig
-        if dispenseTime + 60*herhaalalarm < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
-            Alarm()
+        if dispenseTime + 60 * herhaalalarm < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
+            systemState = STATE_ALARMING
             herhaalalarm += 1
         elif herhaalalarm >= MAX_ALARM:
             systemState = STATE_NOTIFYING
+    elif not present:
+        systemState = STATE_ACTIVE
 
 
     # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
