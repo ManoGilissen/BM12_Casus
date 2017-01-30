@@ -76,6 +76,7 @@ senderMail	                        = "dspnzr2000@gmail.com"
 recipientMail	                    = "svenheinen93@gmail.com"	    # Constant for testing
 patientName 	                    = "Anne Beertens"
 mailTime                            = 0
+mailSent                            = False
 
 dispenseTimeStamps                  = []
 
@@ -112,8 +113,10 @@ def Dispense():
     global dispenseTime
     global nextDispense
     global mailTime
+    global mailSent
 
     Set_State(STATE_DISPENSING)
+    mailSent = False
 
     nextDispense = -1
     rgbColor = COLOR_BLUE
@@ -166,6 +169,7 @@ def Dispensed():
     global timeBetweenAlarm
     global herhaalalarm
     global MAX_ALARM
+
     # Read ultra sonic sensor value
     dispenseCheckTime = int(time())
     proxDetect()
@@ -230,6 +234,7 @@ def proxDetect():
 def Notifying():
     global systemState
     global mailTime
+    global mailSent
 
     print("Notify")
 
@@ -246,6 +251,7 @@ def Notifying():
     #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
     #mailProcess.communicate(mailMsg.as_string())
 
+    mailSent = True
     print(mailPlaintext)
 
 
