@@ -1,5 +1,7 @@
 from grove_rgb_lcd import *
 from time import time, strftime, localtime, sleep
+from email.mime.text import MIMEText
+from subprocess import Popen, PIPE
 from datetime import datetime
 
 import grovepi
@@ -159,16 +161,25 @@ def Dispensed():
 
 
 def Alarm():
-    Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Alarming")
     if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
         Set_State(STATE_DISPENSED)
     else:
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-
+'''
 def Notifying():
     global systemState
+    mailPlaintext = patientName + " heeft niet op het medicatie alarm van " + Time + " gereageerd."
+    # Mail wordt omgezet naar MIMEtype text voor compabiliteit
+    mailMsg = MIMEText(mailPlaintext)
+    mailMsg['From'] = senderMail
+    mailMsg['To'] = recipientMail
+    mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
 
+    # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
+    mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+    mailProcess.communicate(mailMsg.as_string())
+'''
 
 # Geeft de tijd aan waarop de volgende inname plaatsvindt.
 def Get_Remaining():
