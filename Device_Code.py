@@ -184,6 +184,8 @@ def Dispensed():
     elif present == 0:
         systemState = STATE_ACTIVE
 
+    print(herhaalalarm)
+
     # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
     # Conclude blister taken by user
     # systemState = STATE_ACTIVE
