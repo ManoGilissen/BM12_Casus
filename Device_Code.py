@@ -266,7 +266,7 @@ def Set_State(newState):
     systemState = newState
 
     if (systemState == STATE_ACTIVE):
-        nextDisplayed = false
+        nextDisplayed = False
         repeatAlarm = 1
 
     Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
