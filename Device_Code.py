@@ -184,8 +184,6 @@ def Dispensed():
     elif blisterPresent == PROXIMITY_EMPTY:
         Set_State(STATE_ACTIVE)
 
-    print(herhaalalarm)
-
     # if EMPTY_HOLDER_VALUE + ERROR_MARGIN > readValue > EMPTY_HOLDER_VALUE - ERROR_MARGIN:
     # Conclude blister taken by user
     # systemState = STATE_ACTIVE
