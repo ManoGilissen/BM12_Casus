@@ -17,14 +17,24 @@ STATE_NOTIFYING                     = "State notifying"
 
 # Input identifiers
 INPUT_NONE                          = 0
-INPUT_TYPE_SHORT                    = 1     # Short press
-INPUT_TYPE_LONG                     = 2     # Long press
-INPUT_TYPE_POWER                    = 3     # Power button press
+INPUT_TYPE_SHORT                    = 1         # Short press
+INPUT_TYPE_LONG                     = 2         # Long press
+INPUT_TYPE_POWER                    = 3         # Power button press
 
-# Event durations
+# Proximity variables
+PROXIMITY_EMPTY                     = 0
+PROXIMITY_BLISTER                   = 1
+PROXIMITY_REJECT                    = 2
+PROXIMITY_REJECT_THRESHOLD          = 50
+PROXIMITY_EMPTY_THRESHOLD           = 10
+
+# Event variables
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
 DISPENSE_DURATION                   = 4
+ALARM_DURATION                      = 15
+REPEAT_ALARM_NOTIFY                 = 3
+REPEAT_ALARM_INTERVAL               = 60
 
 # Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
@@ -35,7 +45,7 @@ TONE_SILENCE                        = -1
 MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
 BUTTON_PIN                          = 3
-PROXIMITY_PIN = 2
+PROXIMITY_PIN                       = 2
 
 # Color constants
 COLOR_RED                           = [255, 100, 100]
@@ -53,16 +63,12 @@ inputInterval                       = 500       # Long press threshold
 powerInterval                       = 10000     # Shut down press threshold
 dispenseTime                        = 0
 nextDispense                        = -1
-remainingTime                       = ""
 importedTimes                       = []
+nextDisplayed                       = False
 
-# Alarm & Proxomity variabelen
-present = False
-herhaalalarm = 1
-MAX_ALARM = 3
-ALARM_DURATION = 15
-dispenseCheckTime = 0
-timeBetweenAlarm = 60
+# Alarm and proximity variables
+blisterPresent                      = PROXIMITY_REJECT
+repeatAlarm                         = 1
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -115,13 +121,16 @@ def Dispense():
     global mailTime
     global mailSent
 
-    Set_State(STATE_DISPENSING)
-    mailSent = False
+    dispenseTimeStamps.append(dispenseTimeStamps[0])
+    del dispenseTimeStamps[0]
 
-    nextDispense = -1
-    rgbColor = COLOR_BLUE
-    ledColor = COLOR_BLUE
-    buzzerTone = TONE_DISPENSING
+    Set_State(STATE_DISPENSING)
+
+    mailSent        = False
+    nextDispense    = -1
+    rgbColor        = COLOR_BLUE
+    ledColor        = COLOR_BLUE
+    buzzerTone      = TONE_DISPENSING
 
     Set_Actuators()
     Set_Display("  Uw medicatie  ", "wordt uitgegeven")
@@ -130,11 +139,11 @@ def Dispense():
 
     Set_State(STATE_ALARMING)
 
-    dispenseTime = int(time())
-    mailTime = localtime()
-    rgbColor = COLOR_WHITE
-    ledColor = COLOR_ORANGE
-    buzzerTone = TONE_ALARMING
+    dispenseTime    = int(time())
+    mailTime        = localtime()
+    rgbColor        = COLOR_WHITE
+    ledColor        = COLOR_ORANGE
+    buzzerTone      = TONE_ALARMING
 
     Set_Actuators()
     Set_Display("  Uw medicatie  ", "  ligt gereed   ")
@@ -146,43 +155,34 @@ def Inactive():
 
 
 def Active():
-    global remainingTime
-    global dispenseTimeStamps
+    global nextDisplayed
+
+    if not nextDisplayed:
+        nextDisplayed = True
+        Set_Display("Volgende inname:", "      " + dispenseTimeStamps[0] + "     ")
 
     if userInput == INPUT_TYPE_LONG or strftime("%H:%M", localtime()) == dispenseTimeStamps[0]:
         Dispense()
-        dispenseTimeStamps.append(dispenseTimeStamps[0])
-        del dispenseTimeStamps[0]
-
-
-    '''
-    elif (remainingTime != Get_Remaining()):
-            remainingTime = Get_Remaining()
-            Set_Display("Volgende inname:", Get_Remaining())
-    '''
 
 
 def Dispensed():
     global systemState
-    global present
-    global dispenseCheckTime
-    global timeBetweenAlarm
-    global herhaalalarm
-    global MAX_ALARM
+    global repeatAlarm
+    global dispenseTimeStamps
 
-    # Read ultra sonic sensor value
-    dispenseCheckTime = int(time())
-    proxDetect()
+    DetectProximity()
 
-    if present == 1:
-        # Medicatie is aanwezig
-        if dispenseTime + ALARM_DURATION * herhaalalarm < int(time()) - timeBetweenAlarm and herhaalalarm < MAX_ALARM:
-            systemState = STATE_ALARMING
-            herhaalalarm += 1
-        elif herhaalalarm >= MAX_ALARM:
-            systemState = STATE_NOTIFYING
-    elif present == 0:
-        systemState = STATE_ACTIVE
+    if blisterPresent == PROXIMITY_BLISTER:
+
+        if dispenseTime + REPEAT_ALARM_INTERVAL * repeatAlarm < int(time()):
+            Set_State(STATE_ALARMING)
+            repeatAlarm += 1
+
+        if repeatAlarm == REPEAT_ALARM_NOTIFY:
+            Set_State(STATE_NOTIFYING)
+
+    elif blisterPresent == PROXIMITY_EMPTY:
+        Set_State(STATE_ACTIVE)
 
     print(herhaalalarm)
 
@@ -205,40 +205,37 @@ def Alarm():
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 
-def proxDetect():
-    global PROXIMITY_PIN
-    global present
-    global dispenseCheckTime
+def DetectProximity():
+    global blisterPresent
 
-    limit = 10          # Eventueel andere range: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
+    # Eventueel andere range: Is de grenswaarde tussen wel/niet aanwezig zijn van een blister
 
     try:
-        # Afstand bepalen m.b.v. sensor
-        ultrasonicDetect = grovepi.ultrasonicRead(PROXIMITY_PIN)
-        print(ultrasonicDetect)
-        if ultrasonicDetect > 50:       # Onnauwkeurigheid sensor
-            print('Gooi weg.')
-            present = 2
-        elif ultrasonicDetect > limit:
-            print("Afstand is groter dan limit. Geen blister aanwezig.")
-            present = 0
-        elif ultrasonicDetect <= limit:
-            print("Afstand is kleiner dan limit. Blister aanwezig.")
-            present = 1
+        # Afstand bepalen met behulp van proximity sensor
+        detectedDistance = grovepi.ultrasonicRead(PROXIMITY_PIN)
+
+        if detectedDistance > PROXIMITY_REJECT_THRESHOLD:
+            print('Gooi weg')
+            blisterPresent = PROXIMITY_REJECT
+        elif detectedDistance > PROXIMITY_EMPTY_THRESHOLD:
+            print("Afstand is groter dan limit. Geen blister aanwezig")
+            blisterPresent = PROXIMITY_EMPTY
+        elif detectedDistance <= PROXIMITY_EMPTY_THRESHOLD:
+            print("Afstand is kleiner dan limit. Blister aanwezig")
+            blisterPresent = PROXIMITY_BLISTER
 
     except TypeError:
         print("TypeError")
-        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exeption")
+        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exception")
     except IOError:
         print("IOError")
-        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exeption")
+        Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Exception")
+
 
 def Notifying():
     global systemState
     global mailTime
     global mailSent
-
-    print("Notify")
 
     if not mailSent:
         mailTime = strftime("%A, %d %b %Y om %H:%M:%S", mailTime)
@@ -251,27 +248,29 @@ def Notifying():
         mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
 
         # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
-        #mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
-        #mailProcess.communicate(mailMsg.as_string())
+        # mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+        # mailProcess.communicate(mailMsg.as_string())
         print(mailPlaintext)
         mailSent = True
 
     elif mailSent:
         print('Mail reeds verzonden.')
 
-
-# Geeft de tijd aan waarop de volgende inname plaatsvindt.
-def Get_Remaining():
-    minutes, seconds = divmod(nextDispense - 120, 60)
-    hours, minutes = divmod(minutes, 60)
-    return ("    " + "%02d:%02d" % (hours, minutes) + "    ")
+    Set_State(STATE_ACTIVE)
 
 
 # Verandert de state en schrijft dit in het logfile
 def Set_State(newState):
     global systemState
+    global nextDisplayed
+    global repeatAlarm
 
     systemState = newState
+
+    if (systemState == STATE_ACTIVE):
+        nextDisplayed = false
+        repeatAlarm = 1
+
     Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
 
 
@@ -323,7 +322,10 @@ def Check_Active():
 
     # Check and process power button input
     if userInput == INPUT_TYPE_POWER:
-        systemState = STATE_ACTIVE if systemState == STATE_INACTIVE else STATE_INACTIVE
+        if systemState == STATE_INACTIVE:
+            Set_State(STATE_ACTIVE)
+        else:
+            Set_State(STATE_INACTIVE)
         ledColor = COLOR_RED if systemState == STATE_INACTIVE else COLOR_GREEN
         rgbColor = COLOR_DIMMED if systemState == STATE_INACTIVE else COLOR_WHITE
 
@@ -339,22 +341,23 @@ def Check_Input():
 
     userInput = INPUT_NONE
 
-    if grovepi.digitalRead(BUTTON_PIN) == 1:  # Button 1 wordt ingedrukt
+    if grovepi.digitalRead(BUTTON_PIN) == 1:    # Button 1 wordt ingedrukt
         if not buttonDown:
             buttonDown = True
             inputStart = int(time() * 1000)
     else:
-        if buttonDown:  # Button 1 wordt losgelaten
+        if buttonDown:                          # Button 1 wordt losgelaten
             buttonDown = False
             inputRelease = int(time() * 1000)
             inputDuration = (inputRelease - inputStart)
+
             if inputDuration <= inputInterval:
-                userInput = INPUT_TYPE_SHORT  # Short press
+                userInput = INPUT_TYPE_SHORT    # Short press
             elif inputDuration < powerInterval:
-                userInput = INPUT_TYPE_LONG  # Long press
+                userInput = INPUT_TYPE_LONG     # Long press
             elif inputDuration >= powerInterval:
                 Set_Display("  Shutting down ", "    Goodbye     ")
-                userInput = INPUT_TYPE_POWER  # Shutdown press
+                userInput = INPUT_TYPE_POWER    # Shutdown press
 
 
 def Play_Intro():
@@ -394,11 +397,8 @@ def Get_Dispense_Times():
             Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | Error: A scheduled timestamp has not been imported (invalid format)")
             print("Error: Tijd voldoet niet aan eisen (HH:MM)")
 
-
-# Sort list
     importedTimes.sort()
 
-    # Check if time < now
     now = strftime('%H:%M', localtime())
     print('Het is nu: ', now)
     for sortedTime in importedTimes:
@@ -410,6 +410,8 @@ def Get_Dispense_Times():
     # Append earlier times to the final list
     for earlyTime in tempTimes:
         dispenseTimeStamps.append(earlyTime)
+
+    Set_Display("Volgende inname:", "      " + dispenseTimeStamps[0] + "     ")
 
 
 Start()
