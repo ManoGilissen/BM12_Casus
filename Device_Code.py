@@ -174,7 +174,7 @@ def Dispensed():
 
     if blisterPresent == PROXIMITY_BLISTER:
 
-        if dispenseTime + REPEAT_ALARM_INTERVAL * repeatAlarm + 1 < int(time()):
+        if dispenseTime + REPEAT_ALARM_INTERVAL * (repeatAlarm + 1) < int(time()):
             Set_State(STATE_ALARMING)
             repeatAlarm += 1
 
