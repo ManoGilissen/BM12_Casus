@@ -68,7 +68,7 @@ nextDisplayed                       = False
 
 # Alarm and proximity variables
 blisterPresent                      = PROXIMITY_REJECT
-repeatAlarm                         = 1
+repeatAlarm                         = 0
 
 # System and hardware state variables
 systemState                         = STATE_ACTIVE
@@ -174,7 +174,7 @@ def Dispensed():
 
     if blisterPresent == PROXIMITY_BLISTER:
 
-        if dispenseTime + REPEAT_ALARM_INTERVAL * repeatAlarm < int(time()):
+        if dispenseTime + REPEAT_ALARM_INTERVAL * repeatAlarm + 1 < int(time()):
             Set_State(STATE_ALARMING)
             repeatAlarm += 1
 
@@ -213,13 +213,13 @@ def DetectProximity():
         detectedDistance = grovepi.ultrasonicRead(PROXIMITY_PIN)
 
         if detectedDistance > PROXIMITY_REJECT_THRESHOLD:
-            print('Gooi weg')
+            #print('Gooi weg')
             blisterPresent = PROXIMITY_REJECT
         elif detectedDistance > PROXIMITY_EMPTY_THRESHOLD:
-            print("Afstand is groter dan limit. Geen blister aanwezig")
+            #print("Afstand is groter dan limit. Geen blister aanwezig")
             blisterPresent = PROXIMITY_EMPTY
         elif detectedDistance <= PROXIMITY_EMPTY_THRESHOLD:
-            print("Afstand is kleiner dan limit. Blister aanwezig")
+            #print("Afstand is kleiner dan limit. Blister aanwezig")
             blisterPresent = PROXIMITY_BLISTER
 
     except TypeError:
@@ -267,8 +267,9 @@ def Set_State(newState):
 
     if (systemState == STATE_ACTIVE):
         nextDisplayed = False
-        repeatAlarm = 1
+        repeatAlarm = 0
 
+    print(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
     Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
 
 
