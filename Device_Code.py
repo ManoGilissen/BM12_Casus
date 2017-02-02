@@ -247,8 +247,8 @@ def Notifying():
         mailMsg['Subject'] = patientName + " reageert niet op medicatie alarm"
 
         # Inhoud van variabele mailMsg wordt gepiped naar sendmail process
-        # mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
-        # mailProcess.communicate(mailMsg.as_string())
+        mailProcess = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
+        mailProcess.communicate(mailMsg.as_string())
         print(mailPlaintext)
         mailSent = True
 
