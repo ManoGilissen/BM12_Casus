@@ -268,9 +268,11 @@ def Set_State(newState):
     systemState = newState
 
     if (systemState == STATE_ACTIVE):
-        alarmTime = int(Time())
         nextDisplayed = False
         repeatAlarm = 0
+    elif systemState == STATE_ALARMING:
+        alarmTime = int(time())
+
 
     print(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
     Log_Write(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
