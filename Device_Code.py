@@ -62,6 +62,7 @@ inputRelease                        = 0         # Timestamp end button press
 inputInterval                       = 500       # Long press threshold
 powerInterval                       = 10000     # Shut down press threshold
 dispenseTime                        = 0
+alarmTime                           = 0
 nextDispense                        = -1
 importedTimes                       = []
 nextDisplayed                       = False
@@ -197,7 +198,7 @@ def Dispensed():
 
 
 def Alarm():
-    if userInput == INPUT_TYPE_SHORT or dispenseTime < int(time()) - ALARM_DURATION:
+    if userInput == INPUT_TYPE_SHORT or alarmTime < int(time()) - ALARM_DURATION:
         Set_State(STATE_DISPENSED)
     else:
         setRGB(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -262,10 +263,12 @@ def Set_State(newState):
     global systemState
     global nextDisplayed
     global repeatAlarm
+    global alarmTime
 
     systemState = newState
 
     if (systemState == STATE_ACTIVE):
+        alarmTime = int(Time())
         nextDisplayed = False
         repeatAlarm = 0
 
