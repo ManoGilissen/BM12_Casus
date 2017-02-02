@@ -31,10 +31,10 @@ PROXIMITY_EMPTY_THRESHOLD           = 10
 # Event variables
 UPDATE_INTERVAL                     = 0.05
 INTRO_DURATION                      = 2
-DISPENSE_DURATION                   = 4
-ALARM_DURATION                      = 8
+DISPENSE_DURATION                   = 5
+ALARM_DURATION                      = 20
 REPEAT_ALARM_NOTIFY                 = 2
-REPEAT_ALARM_INTERVAL               = 10
+REPEAT_ALARM_INTERVAL               = 30
 
 # Buzzer tone constants
 TONE_DISPENSING                     = 440       # Note A4
