@@ -273,10 +273,10 @@ def Set_State(newState):
         repeatAlarm = 0
 
     if systemState == STATE_ALARMING:
-        digitalWrite(BUZZER_PIN, 1)
+        grovepi.digitalWrite(BUZZER_PIN, 1)
         alarmTime = int(time())
     else:
-        digitalWrite(BUZZER_PIN, 0)
+        grovepi.digitalWrite(BUZZER_PIN, 0)
 
 
     print(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
