@@ -46,6 +46,7 @@ MAX_DISPLAY_CHARS                   = 32
 MAX_LINE_CHARS                      = 16
 BUTTON_PIN                          = 3
 PROXIMITY_PIN                       = 2
+BUZZER_PIN                          = 4
 
 # Color constants
 COLOR_RED                           = [255, 100, 100]
@@ -270,8 +271,12 @@ def Set_State(newState):
     if (systemState == STATE_ACTIVE):
         nextDisplayed = False
         repeatAlarm = 0
-    elif systemState == STATE_ALARMING:
+
+    if systemState == STATE_ALARMING:
+        digitalWrite(BUZZER_PIN, 1)
         alarmTime = int(time())
+    else:
+        digitalWrite(BUZZER_PIN, 0)
 
 
     print(strftime("%Y-%m-%d %H:%M:%S", localtime()) + " | " + newState)
@@ -295,6 +300,7 @@ def Set_Actuators():
 def Set_Hardware():
     grovepi.pinMode(BUTTON_PIN, "INPUT")
     grovepi.pinMode(PROXIMITY_PIN, "INPUT")
+    grovepi.pinMode(BUZZER_PIN, "OUTPUT")
 
 
 def Get_Timestamps():
