@@ -1,5 +1,5 @@
 # DSPNZR
-BM12 casus project
+BM12 casus project. Device_Code.py bevat de source code voor de dispenser.
 
 ## License
 
